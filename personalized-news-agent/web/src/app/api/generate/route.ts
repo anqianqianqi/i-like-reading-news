@@ -69,9 +69,40 @@ Third (optional): one specific thing to watch or act on.
 NEVER write generic advice like "monitor developments" or "watch for changes."
 Always be specific: which sector, which ticker, which direction, which catalyst.
 
-### Price moves
-Only populate price_moves if the story directly mentions a stock move or has
-an unambiguous direct ticker impact. Leave empty [] otherwise.
+### Story selection — what deserves a full story slot vs quick hit
+
+FULL STORY SLOT (6-8 of these):
+- Geopolitical events with economic consequences (tariffs, wars, sanctions)
+- Major market moves with a clear mechanism (yields spiking, sector rotations)
+- Earnings results or guidance from major companies
+- Policy decisions with direct market/investment impact
+- Technology milestones that change competitive dynamics (IPO filings, product launches with real market consequence)
+
+QUICK HIT ONLY (do NOT give a full story slot to):
+- Minor legal procedural news ("court allows X to continue" — no economic consequence yet)
+- Product feature announcements with no direct market impact (a new app feature, a podcast episode)
+- Social/cultural stories (celebrity deaths, sports, viral trends)
+- Stories where the "so what" is genuinely just "interesting but doesn't affect markets or your money"
+
+EXAMPLES:
+- "SCOTUS allows White House ballroom construction to continue" → QUICK HIT (procedural, no market impact)
+- "Anthropic Project Parka Mac feature" → QUICK HIT (product feature, no market consequence)
+- "Anthropic IPO filing lists AI backlash as SEC risk factor" → FULL STORY (first formal SEC disclosure, valuation precedent)
+- "Ray Dalio: Bessent bond move signals debt crisis" → FULL STORY (major macro signal from credible investor)
+- "Tesla recalls 3M vehicles in China" → QUICK HIT unless paired with meaningful market consequence
+
+### Glossary terms — always populate
+For every story, tag ALL finance and tech terms that appear. These power the clickable
+glossary at the bottom of the page. The renderer matches these against a built-in dictionary.
+Terms to always tag when they appear: bond yield, DCF, tariff, rate hike, basis points,
+short squeeze, ASIC, hyperscaler, capex, inference, leverage, duration risk, bond vigilante,
+ETF, options, put, call, spread, quantitative tightening, PCE, CPI, FOMC.
+A finance story with zero glossary terms is wrong — expect 2-4 per story.
+ONLY add tickers that are explicitly named in the source content.
+NEVER add a ticker because it "might be affected" by the story.
+If the source names Tesla ($TSLA), you can include $TSLA.
+If the source does NOT name NIO, do NOT add $NIO even if you think it benefits.
+Hallucinated tickers destroy credibility.
 
 ### Quick hits
 Cover EVERYTHING not in main stories. Format: topic, detail, highlight, source.
@@ -162,7 +193,11 @@ const RESPONSE_SCHEMA = {
               additionalProperties: false
             }
           },
-          glossary_terms: { type: "array", items: { type: "string" } },
+          glossary_terms: {
+            "type": "array",
+            "description": "REQUIRED — do not leave empty. List every finance or tech term used in this story that a non-expert might not know. These become clickable hyperlinks to a glossary. Examples of terms to include: 'bond yield', 'DCF', 'tariff', 'rate hike', 'basis points', 'short squeeze', 'ASIC', 'hyperscaler', 'capex', 'inference', 'leverage', 'duration risk', 'bond vigilante'. If ANY of these appear in the story, include them. For a finance story, expect 2-4 terms. For a tech story, expect 1-3 terms.",
+            "items": { "type": "string" }
+          },
           highlights: {
             type: "array",
             items: {
