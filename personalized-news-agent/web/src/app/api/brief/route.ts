@@ -82,10 +82,19 @@ async function scrapeAllSources(): Promise<{ rawSources: string; date: string; s
 // ── OpenAI caller ──────────────────────────────────────────────────────────
 
 async function openai(apiKey: string, payload: object): Promise<{ data: unknown; usage: { prompt_tokens: number; completion_tokens: number } }> {
+  // GPT-5.x and o-series use max_completion_tokens instead of max_tokens
+  const p = payload as Record<string, unknown>;
+  const model = String(p.model || "");
+  const needsCompletionTokens = model.startsWith("gpt-5") || model.startsWith("o1") || model.startsWith("o3");
+  let finalPayload: Record<string, unknown> = { ...p };
+  if (needsCompletionTokens && "max_tokens" in finalPayload) {
+    finalPayload = { ...finalPayload, max_completion_tokens: finalPayload.max_tokens };
+    delete finalPayload.max_tokens;
+  }
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(finalPayload),
   });
   const rawText = await res.text();
   if (!res.ok) {

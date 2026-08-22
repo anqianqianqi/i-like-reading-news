@@ -57,10 +57,18 @@ async function fetchRss(url: string, maxItems = 15): Promise<string> {
 }
 
 async function openaiCall(apiKey: string, payload: object): Promise<{ data: unknown; usage: { prompt_tokens: number; completion_tokens: number } }> {
+  const p = payload as Record<string, unknown>;
+  const model = String(p.model || "");
+  const needsCompletionTokens = model.startsWith("gpt-5") || model.startsWith("o1") || model.startsWith("o3");
+  let finalPayload: Record<string, unknown> = { ...p };
+  if (needsCompletionTokens && "max_tokens" in finalPayload) {
+    finalPayload = { ...finalPayload, max_completion_tokens: finalPayload.max_tokens };
+    delete finalPayload.max_tokens;
+  }
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(finalPayload),
   });
   const rawText = await res.text();
   if (!res.ok) throw new Error(`OpenAI HTTP ${res.status}: ${rawText.slice(0,300)}`);
