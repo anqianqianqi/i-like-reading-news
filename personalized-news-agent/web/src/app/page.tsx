@@ -12,6 +12,15 @@ export default function Home() {
   const [cached, setCached]   = useState(false);
   const [error, setError]     = useState<string>("");
   const [cost, setCost]       = useState<string>("");
+  const [model, setModel]     = useState("gpt-4.1");
+
+  const MODELS = [
+    { id: "gpt-4.1",      label: "gpt-4.1  (fast · cheap · good)" },
+    { id: "gpt-5.6-sol",  label: "gpt-5.6-sol  (best · slow · ~$1)" },
+    { id: "gpt-5.6-terra",label: "gpt-5.6-terra  (balanced)" },
+    { id: "gpt-4o",       label: "gpt-4o  (baseline)" },
+    { id: "o3",           label: "o3  (reasoning · ~3 min)" },
+  ];
 
   function addLog(msg: string) { setLog(prev => [...prev, msg]); }
 
@@ -63,7 +72,7 @@ export default function Home() {
       const res = await fetch("/api/brief", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force })
+        body: JSON.stringify({ force, model })
       });
       if (!res.ok) {
         const err = await res.json();
@@ -107,6 +116,22 @@ export default function Home() {
 
       {/* Controls */}
       <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
+
+        {/* Model selector */}
+        <select
+          value={model}
+          onChange={e => setModel(e.target.value)}
+          disabled={busy}
+          style={{
+            border: "1.5px solid #e8e4e0", borderRadius: 8, padding: "9px 12px",
+            fontSize: 13, background: "#fff", color: "#2d3436",
+            cursor: busy ? "not-allowed" : "pointer", fontFamily: "inherit"
+          }}
+        >
+          {MODELS.map(m => (
+            <option key={m.id} value={m.id}>{m.label}</option>
+          ))}
+        </select>
 
         <button onClick={previewFixture} disabled={busy} style={{
           background: "#fff", color: "#6c5ce7", border: "2px solid #6c5ce7",

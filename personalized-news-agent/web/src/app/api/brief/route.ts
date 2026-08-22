@@ -12,9 +12,9 @@ import { GENERATE_SYSTEM, CRITIQUE_SYSTEM, REWRITE_SYSTEM } from "@/lib/prompts"
 
 export const maxDuration = 300;
 
-// Model to use — upgrade here to try better models
-// Options: "gpt-4o", "gpt-4o-2024-11-20", "gpt-4-turbo", "o3", "gpt-5.6-sol"
-const MODEL = "gpt-5.6-sol";
+// Allowed models — UI dropdown options
+const ALLOWED_MODELS = ["gpt-4.1", "gpt-4o", "gpt-5.6-sol", "gpt-5.6-terra", "o3"];
+const DEFAULT_MODEL  = "gpt-4.1";
 
 // ── Source scraper ─────────────────────────────────────────────────────────
 
@@ -249,9 +249,9 @@ export async function POST(req: NextRequest) {
   if (!apiKey) return NextResponse.json({ error: "OPENAI_API_KEY not set" }, { status: 500 });
 
   const body = await req.json().catch(() => ({}));
-  const { force } = body as { force?: boolean };
+  const { force, model: selectedModel } = body as { force?: boolean; model?: string };
+  const MODEL = ALLOWED_MODELS.includes(selectedModel || "") ? selectedModel! : DEFAULT_MODEL;
   const date = todayKey();
-  // No persistent cache yet — always run the pipeline
   const log: string[] = [];
 
   try {
