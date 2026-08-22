@@ -156,9 +156,15 @@ export const BALANCE_SYSTEM = `You are a copy editor for a daily news brief. You
 - If a sentence says something is unknown or missing, delete that sentence entirely.
 
 ### mechanism steps
-- Each step: max 10 words. Cut adjectives and subordinate clauses.
+- Each step: max 8 words. No exceptions. Cut ruthlessly.
+- If a step is a full sentence, compress it to a phrase.
 - If a step just says "X is unknown" or "X was not disclosed" — delete it.
 - If a chain has more than 5 steps, merge the two most similar ones.
+- EXAMPLE:
+  BAD step: "Negotiators failed to finalize the draft steel and aluminum arrangement before the 12:01 a.m. deadline, so the U.S. tariff took effect rather than being exchanged for Canada dropping its prior countermeasures."
+  GOOD step: "Draft accord fails at midnight deadline"
+  BAD step: "Investors discounted the support because $4 billion is small versus the Treasury market's ongoing financing needs."
+  GOOD step: "$4B buyback too small vs Treasury supply"
 
 ### so_what bullets
 - Max 20 words per bullet. Cut everything after the first complete thought.
