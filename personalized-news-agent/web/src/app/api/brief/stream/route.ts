@@ -11,6 +11,9 @@ import { GENERATE_SYSTEM, CRITIQUE_SYSTEM, REWRITE_SYSTEM } from "@/lib/prompts"
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
+// Model — upgrade here
+const MODEL = "gpt-4o-2024-11-20";
+
 // ── All pipeline logic (same as /api/brief POST, just with streaming) ──────
 
 const SOURCES = [
@@ -133,7 +136,7 @@ export async function GET(req: NextRequest) {
         // Step 2: Generate
         log("Step 2: Calling OpenAI to generate brief...");
         const { data: brief_v1, usage: u1 } = await openaiCall(apiKey, {
-          model:"gpt-4o", temperature:0.2, max_tokens:16384,
+          model:MODEL, temperature:0.2, max_tokens:16384,
           messages:[
             { role:"system", content:GENERATE_SYSTEM },
             { role:"user", content:`Today is ${fetchDate}.\n\nGenerate at least 6 stories and 15 quick hits. Cover everything.\n\n${truncated}` }
@@ -154,7 +157,7 @@ export async function GET(req: NextRequest) {
         }));
 
         const { data: critique, usage: u2 } = await openaiCall(apiKey, {
-          model:"gpt-4o", temperature:0.1, max_tokens:4096,
+          model:MODEL, temperature:0.1, max_tokens:4096,
           messages:[
             { role:"system", content:CRITIQUE_SYSTEM },
             { role:"user", content:`Review these stories:\n${JSON.stringify(storySummary,null,2)}` }
@@ -177,7 +180,7 @@ export async function GET(req: NextRequest) {
               const story = (brief_v1 as {stories:unknown[]}).stories[issue.story_index];
               try {
                 const { data: rewrite } = await openaiCall(apiKey, {
-                  model:"gpt-4o", temperature:0.2, max_tokens:4096,
+                  model:MODEL, temperature:0.2, max_tokens:4096,
                   messages:[
                     { role:"system", content:REWRITE_SYSTEM },
                     { role:"user", content:`Rewrite this story.\n\nOriginal: ${JSON.stringify(story)}\n\nIssues: ${issue.failures.join("; ")}\n\nMissing facts: ${(issue.missing_facts||[]).join("; ")}\n\nSources:\n${truncated.slice(0,25000)}` }
