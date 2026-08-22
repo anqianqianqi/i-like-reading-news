@@ -6,15 +6,16 @@ import { renderEngineer } from "@/lib/render";
 type Status = "idle" | "checking" | "loading" | "running" | "done" | "error";
 
 export default function Home() {
-  const [status, setStatus]       = useState<Status>("checking");
-  const [log, setLog]             = useState<string[]>([]);
-  const [html, setHtml]           = useState<string>("");
+  const [status, setStatus]             = useState<Status>("checking");
+  const [log, setLog]                   = useState<string[]>([]);
+  const [html, setHtml]                 = useState<string>("");
   const [htmlBalanced, setHtmlBalanced] = useState<string>("");
   const [showBalanced, setShowBalanced] = useState(true);
-  const [cached, setCached]       = useState(false);
-  const [error, setError]         = useState<string>("");
-  const [cost, setCost]           = useState<string>("");
-  const [model, setModel]         = useState("gpt-4.1");
+  const [hasRaw, setHasRaw]             = useState(false);
+  const [cached, setCached]             = useState(false);
+  const [error, setError]               = useState<string>("");
+  const [cost, setCost]                 = useState<string>("");
+  const [model, setModel]               = useState("gpt-4.1");
 
   const MODELS = [
     { id: "gpt-4.1",      label: "gpt-4.1  (fast · cheap · good)" },
@@ -35,10 +36,17 @@ export default function Home() {
           const { brief, brief_balanced } = await res.json();
           setHtml(renderEngineer(brief));
           setHtmlBalanced(renderEngineer(brief_balanced || brief));
+          setHasRaw(true);
           setCached(true);
           addLog("✓ Loaded today's brief from storage.");
           setStatus("done");
         } else {
+          // Check if at least raw brief exists (for Re-balance button)
+          const balRes = await fetch("/api/brief/balance");
+          if (balRes.ok) {
+            const { exists } = await balRes.json();
+            setHasRaw(exists);
+          }
           setStatus("idle");
         }
       } catch {
@@ -65,7 +73,36 @@ export default function Home() {
     }
   }
 
-  // Full agentic pipeline — uses SSE stream for real-time progress
+  // Re-balance only — loads raw brief from Blob, runs balancer (~$0.01)
+  async function reBalance() {
+    setStatus("running");
+    setLog(["Re-balancing from stored raw brief..."]);
+    setError("");
+
+    try {
+      const res = await fetch("/api/brief/balance", { method: "POST" });
+      if (!res.ok) {
+        const err = await res.json();
+        if (err.needs_pipeline) {
+          setError("No raw brief stored. Run the full pipeline first.");
+        } else {
+          setError(err.error || "Balance failed");
+        }
+        setStatus("error");
+        return;
+      }
+      const { brief_balanced, log: balLog } = await res.json();
+      balLog.forEach((l: string) => addLog(l));
+      const newBalancedHtml = renderEngineer(brief_balanced);
+      setHtmlBalanced(newBalancedHtml);
+      setShowBalanced(true);
+      setStatus("done");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setStatus("error");
+    }
+  }
   async function runPipeline(force = false) {
     setStatus("running");
     setLog(force ? ["Force regenerating..."] : ["Starting pipeline..."]);
@@ -85,6 +122,7 @@ export default function Home() {
             if (msg.brief) {
               setHtml(renderEngineer(msg.brief));
               setHtmlBalanced(renderEngineer((msg as {brief_balanced?: unknown}).brief_balanced || msg.brief));
+              setHasRaw(true);
               setCached(msg.cached || false);
             }
             const costLine = (msg as {log?: string[]}).log?.find?.((l: string) => l.includes("$0."));
@@ -180,7 +218,21 @@ export default function Home() {
           </button>
         )}
 
-        {cost && (
+        {/* Re-balance button — only if raw brief exists */}
+        {hasRaw && (
+          <button
+            onClick={reBalance}
+            disabled={busy}
+            style={{
+              background: "#fff", color: "#10b981",
+              border: "2px solid #10b981", borderRadius: 8,
+              padding: "9px 18px", fontSize: 13, fontWeight: 700,
+              cursor: busy ? "not-allowed" : "pointer",
+            }}
+          >
+            Re-balance (gpt-4o-mini)
+          </button>
+        )}
           <span style={{ fontSize: 11, color: "#636e72" }}>{cost}</span>
         )}
       </div>
