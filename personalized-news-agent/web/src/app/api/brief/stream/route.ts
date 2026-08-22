@@ -115,10 +115,9 @@ export async function GET(req: NextRequest) {
 
         const date = todayKey();
 
-        // Check cache
-        const blobAvailable = !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+        const blobAvailable = !!(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
         if (!blobAvailable) {
-          log("⚠ No Blob token — results won't be cached. Add BLOB_READ_WRITE_TOKEN to env vars.");
+          log("⚠ BLOB_STORE_ID not found — results won't be cached.");
         }
         if (!force) {
           const exists = await todayBriefExists(date).catch(() => false);

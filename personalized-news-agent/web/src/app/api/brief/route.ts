@@ -270,9 +270,6 @@ export async function POST(req: NextRequest) {
   try {
   // Check blob availability and log
   const blobAvailable = !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
-  if (!blobAvailable) {
-    log.push("⚠ No Blob token found — results won't be cached (add BLOB_READ_WRITE_TOKEN to env vars)");
-  }
     const exists = await todayBriefExists(date).catch(() => false);
     if (exists) {
       log.push(`✓ Cached brief for ${date} — loading from storage`);
