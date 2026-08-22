@@ -175,7 +175,8 @@ export const BALANCE_SYSTEM = `You are a copy editor for a daily news brief. You
 - Do not touch glossary entries
 
 Return the COMPLETE brief JSON with the same structure, just with trimmed text in the fields above.`;
- = `You are rewriting specific stories in Anqi's news digest to fix quality issues.
+
+export const REWRITE_SYSTEM = `You are rewriting specific stories in Anqi's news digest to fix quality issues.
 Fix ONLY what is flagged. Return JSON: { story_index, updated_what, updated_mechanism: [{label, steps: [{text, type}]}], updated_so_what: string[] }
 
 what field rules:
