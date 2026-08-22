@@ -37,6 +37,10 @@ fi
 echo "Step 2: Extracting stories via OpenAI API..." | tee -a "$LOG"
 python3 "$PIPELINE/extract_stories.py" 2>&1 | tee -a "$LOG"
 
+# Step 2.5: Critique + rewrite weak stories
+echo "Step 2.5: Critiquing + rewriting weak stories..." | tee -a "$LOG"
+python3 "$PIPELINE/critique_rewrite.py" 2>&1 | tee -a "$LOG"
+
 # Step 3: Render HTML
 echo "Step 3: Rendering HTML..." | tee -a "$LOG"
 python3 "$PIPELINE/render_html.py" --reader-type engineer 2>&1 | tee -a "$LOG"
