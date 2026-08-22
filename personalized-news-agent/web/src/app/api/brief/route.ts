@@ -9,6 +9,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { todayKey, saveJSON, saveText, loadJSON, todayBriefExists, deleteBrief } from "@/lib/storage";
 
+export const maxDuration = 300; // 5 minutes — Pro plan max
+
 // ── Source scraper ─────────────────────────────────────────────────────────
 
 const SOURCES = [
@@ -80,13 +82,26 @@ async function openai(apiKey: string, payload: object): Promise<{ data: unknown;
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
     body: JSON.stringify(payload),
   });
+  const rawText = await res.text();
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenAI error ${res.status}: ${err.slice(0, 200)}`);
+    throw new Error(`OpenAI HTTP ${res.status}: ${rawText.slice(0, 300)}`);
   }
-  const result = await res.json();
-  const content = result.choices[0].message.content;
-  const data = typeof content === "string" ? JSON.parse(content) : content;
+  let result: { choices: { message: { content: string } }[]; usage: { prompt_tokens: number; completion_tokens: number } };
+  try {
+    result = JSON.parse(rawText);
+  } catch {
+    throw new Error(`OpenAI response not JSON: ${rawText.slice(0, 200)}`);
+  }
+  const content = result.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error(`OpenAI empty content. Full response: ${rawText.slice(0, 300)}`);
+  }
+  let data: unknown;
+  try {
+    data = JSON.parse(content);
+  } catch {
+    throw new Error(`Content not valid JSON: ${content.slice(0, 200)}`);
+  }
   return { data, usage: result.usage };
 }
 
@@ -321,6 +336,8 @@ export async function POST(req: NextRequest) {
   const date = todayKey();
   const log: string[] = [];
 
+  try {
+
   // Return cached if exists and not forcing
   if (!force) {
     const exists = await todayBriefExists(date);
@@ -432,4 +449,9 @@ export async function POST(req: NextRequest) {
   log.push(`✓ Done · $${cost.toFixed(4)}`);
 
   return NextResponse.json({ brief: brief_final, critique, date, log, cached: false });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log.push(`✗ ${msg}`);
+    return NextResponse.json({ error: msg, log }, { status: 500 });
+  }
 }
