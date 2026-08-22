@@ -12,7 +12,7 @@ export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
 // Model — upgrade here
-const MODEL = "gpt-4.1";
+const MODEL = "gpt-5.6-sol";
 
 // ── All pipeline logic (same as /api/brief POST, just with streaming) ──────
 
