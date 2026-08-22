@@ -98,6 +98,9 @@ function sseMessage(type: string, payload: unknown): string {
 export async function GET(req: NextRequest) {
   const apiKey = process.env.OPENAI_API_KEY;
   const force = req.nextUrl.searchParams.get("force") === "true";
+  const selectedModel = req.nextUrl.searchParams.get("model") || "gpt-4.1";
+  const ALLOWED_MODELS = ["gpt-4.1", "gpt-4o", "gpt-5.6-sol", "gpt-5.6-terra", "o3"];
+  const MODEL = ALLOWED_MODELS.includes(selectedModel) ? selectedModel : "gpt-4.1";
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({

@@ -62,33 +62,47 @@ export default function Home() {
     }
   }
 
-  // Full agentic pipeline via /api/brief
+  // Full agentic pipeline — uses SSE stream for real-time progress
   async function runPipeline(force = false) {
     setStatus("running");
     setLog(force ? ["Force regenerating..."] : ["Starting pipeline..."]);
     setHtml(""); setError(""); setCached(false); setCost("");
 
     try {
-      const res = await fetch("/api/brief", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ force, model })
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || `Pipeline failed: ${res.status}`);
-      }
-      const { brief, log: pipeLog, cached: wasCached } = await res.json();
+      const params = new URLSearchParams({ force: String(force), model });
+      const evtSource = new EventSource(`/api/brief/stream?${params}`);
 
-      pipeLog.forEach((l: string) => addLog(l));
-      setHtml(renderEngineer(brief));
-      setCached(wasCached);
+      evtSource.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data) as { type: string; message?: string; brief?: unknown; critique?: unknown; cached?: boolean };
+          if (msg.type === "log" && msg.message) {
+            addLog(msg.message);
+          } else if (msg.type === "done") {
+            evtSource.close();
+            if (msg.brief) {
+              setHtml(renderEngineer(msg.brief));
+              setCached(msg.cached || false);
+            }
+            const costLine = (msg as {log?: string[]}).log?.find?.((l: string) => l.includes("$0."));
+            if (costLine) setCost(costLine);
+            setStatus("done");
+          } else if (msg.type === "error") {
+            evtSource.close();
+            setError(msg.message || "Unknown error");
+            addLog(`✗ ${msg.message}`);
+            setStatus("error");
+          }
+        } catch { /* ignore parse errors */ }
+      };
 
-      // Extract cost from log
-      const costLine = pipeLog.find((l: string) => l.includes("$0."));
-      if (costLine) setCost(costLine);
+      evtSource.onerror = () => {
+        evtSource.close();
+        if (status !== "done") {
+          setError("Connection lost — check Vercel function logs");
+          setStatus("error");
+        }
+      };
 
-      setStatus("done");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg); addLog(`✗ ${msg}`); setStatus("error");
