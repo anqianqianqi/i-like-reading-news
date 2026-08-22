@@ -6,7 +6,7 @@
 
 import { NextRequest } from "next/server";
 import { todayKey, saveJSON, saveText, loadJSON, todayBriefExists, deleteBrief } from "@/lib/storage";
-import { GENERATE_SYSTEM, CRITIQUE_SYSTEM, REWRITE_SYSTEM } from "@/lib/prompts";
+import { GENERATE_SYSTEM, CRITIQUE_SYSTEM, REWRITE_SYSTEM, BALANCE_SYSTEM } from "@/lib/prompts";
 
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
@@ -220,6 +220,28 @@ export async function GET(req: NextRequest) {
           brief_final = { ...brief_final, stories:updatedStories };
         } else {
           log("Step 4: All stories passed — no rewrites needed.");
+        }
+
+        // Step 4.5: Balance
+        log("Step 4.5: Balancing with gpt-4o-mini...");
+        try {
+          const { data: balanced } = await openaiCall(apiKey, {
+            model: "gpt-4o-mini",
+            messages: [
+              { role: "system", content: BALANCE_SYSTEM },
+              { role: "user", content: `Balance this brief — trim verbose text without changing facts:\n${JSON.stringify(brief_final)}` }
+            ],
+            max_tokens: 16384,
+            response_format: { type: "json_object" }
+          });
+          if ((balanced as {stories?: unknown}).stories && (balanced as {quick_hits?: unknown}).quick_hits) {
+            brief_final = balanced as typeof brief_final;
+            log("✓ Balanced.");
+          } else {
+            log("⚠ Balancer output invalid — keeping original.");
+          }
+        } catch (e) {
+          log(`⚠ Balancer skipped: ${e instanceof Error ? e.message : "error"}`);
         }
 
         saveJSON(date, "brief_final.json", brief_final).catch(() => {});

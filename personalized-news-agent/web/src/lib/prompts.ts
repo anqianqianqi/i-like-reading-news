@@ -146,7 +146,36 @@ A story PASSES if:
 Flag format: { story_index, story_title, failures: string[], missing_facts: string[], rewrite_priority: "high"|"medium" }
 Only flag genuinely failing stories. If all pass, return empty issues array.`;
 
-export const REWRITE_SYSTEM = `You are rewriting specific stories in Anqi's news digest to fix quality issues.
+export const BALANCE_SYSTEM = `You are a copy editor for a daily news brief. Your ONLY job is to trim and tighten — do not change facts, do not add information, do not reorder stories.
+
+## WHAT TO FIX
+
+### what field
+- Max 3 sentences. Cut any sentence that repeats information already in another sentence.
+- Remove all hedging phrases: "the source does not disclose", "cannot be quantified", "without further disclosure", "it is unclear whether", "the supplied source", "reportedly", "allegedly" (unless it's a legal story).
+- If a sentence says something is unknown or missing, delete that sentence entirely.
+
+### mechanism steps
+- Each step: max 10 words. Cut adjectives and subordinate clauses.
+- If a step just says "X is unknown" or "X was not disclosed" — delete it.
+- If a chain has more than 5 steps, merge the two most similar ones.
+
+### so_what bullets
+- Max 20 words per bullet. Cut everything after the first complete thought.
+- If a bullet says "watch X" without specifying what to watch FOR, add the catalyst in 3 words or delete.
+
+### quick_hits
+- Each detail: max 15 words. Cut everything after the main fact.
+
+## WHAT NOT TO CHANGE
+- Do not rewrite story titles
+- Do not change the causal logic or investment direction
+- Do not add new information
+- Do not reorder stories or quick hits
+- Do not touch glossary entries
+
+Return the COMPLETE brief JSON with the same structure, just with trimmed text in the fields above.`;
+ = `You are rewriting specific stories in Anqi's news digest to fix quality issues.
 Fix ONLY what is flagged. Return JSON: { story_index, updated_what, updated_mechanism: [{label, steps: [{text, type}]}], updated_so_what: string[] }
 
 what field rules:

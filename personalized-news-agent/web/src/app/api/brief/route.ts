@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { todayKey, saveJSON, saveText, loadJSON, todayBriefExists, deleteBrief } from "@/lib/storage";
-import { GENERATE_SYSTEM, CRITIQUE_SYSTEM, REWRITE_SYSTEM } from "@/lib/prompts";
+import { GENERATE_SYSTEM, CRITIQUE_SYSTEM, REWRITE_SYSTEM, BALANCE_SYSTEM } from "@/lib/prompts";
 
 export const maxDuration = 300;
 
@@ -371,6 +371,29 @@ export async function POST(req: NextRequest) {
     brief_final = { ...brief_final, stories: updatedStories };
   } else {
     log.push("Step 4: All stories passed.");
+  }
+
+  // Step 4.5: Balance — cheap fast model trims verbosity without changing facts
+  log.push("Step 4.5: Balancing with gpt-4o-mini...");
+  try {
+    const { data: balanced } = await openai(apiKey, {
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: BALANCE_SYSTEM },
+        { role: "user", content: `Balance this brief — trim verbose text without changing facts:\n${JSON.stringify(brief_final)}` }
+      ],
+      max_tokens: 16384,
+      response_format: { type: "json_object" }
+    });
+    // Only use balanced output if it's valid and has the right structure
+    if ((balanced as {stories?: unknown}).stories && (balanced as {quick_hits?: unknown}).quick_hits) {
+      brief_final = balanced as typeof brief_final;
+      log.push("✓ Balanced.");
+    } else {
+      log.push("⚠ Balancer output invalid — keeping unbalanced version.");
+    }
+  } catch (balanceErr) {
+    log.push(`⚠ Balancer skipped: ${balanceErr instanceof Error ? balanceErr.message : "error"}`);
   }
 
   saveJSON(date, "brief_final.json", brief_final).catch(() => {});
