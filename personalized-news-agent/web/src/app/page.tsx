@@ -19,17 +19,17 @@ export default function Home() {
   // Preview mode — render stored fixture without any API call
   async function previewFixture() {
     setStatus("rendering");
-    setLog(["Loading fixture data (Aug 22, 2026)..."]);
+    setLog(["Loading saved LLM output (Aug 22, 2026)..."]);
     setHtml(""); setError(""); setUsage(null);
     try {
       const res = await fetch("/api/fixture");
       if (!res.ok) throw new Error("Fixture not found");
       const { data } = await res.json();
       addLog(`✓ Loaded ${data.stories.length} stories + ${data.quick_hits.length} quick hits`);
-      addLog("Rendering HTML (no API call)...");
+      addLog("Running formatter (no API call)...");
       const rendered = renderEngineer(data);
       setHtml(rendered);
-      addLog("✓ Done.");
+      addLog("✓ Formatted.");
       setStatus("done");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -90,7 +90,7 @@ export default function Home() {
       </p>
 
       <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
-        {/* Preview button — no API call, uses stored fixture */}
+        {/* Format saved JSON — no API call, formatter runs live in browser */}
         <button
           onClick={previewFixture}
           disabled={busy}
@@ -101,10 +101,10 @@ export default function Home() {
             cursor: busy ? "not-allowed" : "pointer",
           }}
         >
-          Preview Saved Format (Aug 22)
+          Format Saved News (Aug 22)
         </button>
 
-        {/* Live button — fetches + calls OpenAI */}
+        {/* Live pipeline — fetch sources → OpenAI → format */}
         <button
           onClick={runPipeline}
           disabled={busy}
@@ -117,7 +117,7 @@ export default function Home() {
         >
           {status === "fetching"   ? "Fetching sources..." :
            status === "generating" ? "Calling OpenAI..." :
-           status === "rendering"  ? "Rendering..." :
+           status === "rendering"  ? "Formatting..." :
            "Generate Today's News (Live)"}
         </button>
       </div>
