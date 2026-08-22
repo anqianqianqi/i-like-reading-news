@@ -14,7 +14,7 @@ export const maxDuration = 300;
 
 // Model to use — upgrade here to try better models
 // Options: "gpt-4o", "gpt-4o-2024-11-20", "gpt-4-turbo", "o3", "gpt-5.6-sol"
-const MODEL = "gpt-4o-2024-11-20";
+const MODEL = "gpt-4.1";
 
 // ── Source scraper ─────────────────────────────────────────────────────────
 
