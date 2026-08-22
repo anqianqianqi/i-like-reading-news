@@ -65,6 +65,9 @@ async function openaiCall(apiKey: string, payload: object): Promise<{ data: unkn
     finalPayload = { ...finalPayload, max_completion_tokens: finalPayload.max_tokens };
     delete finalPayload.max_tokens;
   }
+  if (needsCompletionTokens && "temperature" in finalPayload) {
+    delete finalPayload.temperature;
+  }
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },

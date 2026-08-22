@@ -91,6 +91,10 @@ async function openai(apiKey: string, payload: object): Promise<{ data: unknown;
     finalPayload = { ...finalPayload, max_completion_tokens: finalPayload.max_tokens };
     delete finalPayload.max_tokens;
   }
+  // gpt-5.x and o-series don't support custom temperature
+  if (needsCompletionTokens && "temperature" in finalPayload) {
+    delete finalPayload.temperature;
+  }
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
