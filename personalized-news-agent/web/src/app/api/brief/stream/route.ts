@@ -75,7 +75,10 @@ const BRIEF_SCHEMA = {
 // ── SSE helper ─────────────────────────────────────────────────────────────
 
 function sseMessage(type: string, payload: unknown): string {
-  return `data: ${JSON.stringify({ type, ...( typeof payload === "string" ? { message: payload } : payload) })}\n\n`;
+  const data = typeof payload === "string"
+    ? { type, message: payload }
+    : { type, ...(payload as Record<string, unknown>) };
+  return `data: ${JSON.stringify(data)}\n\n`;
 }
 
 export async function GET(req: NextRequest) {
