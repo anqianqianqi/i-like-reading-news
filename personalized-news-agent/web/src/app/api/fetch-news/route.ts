@@ -36,11 +36,12 @@ async function fetchRss(url: string, maxItems = 15): Promise<string> {
     const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(20000) });
     const xml = await res.text();
     const items: string[] = [];
-    const itemMatches = xml.matchAll(/<item>([\s\S]*?)<\/item>/g);
+    const itemRe = /<item>([\s\S]*?)<\/item>/g;
+    let itemMatch: RegExpExecArray | null;
     let count = 0;
-    for (const match of itemMatches) {
-      if (count >= maxItems) break;
-      const item = match[1];
+    // eslint-disable-next-line no-cond-assign
+    while (count < maxItems && (itemMatch = itemRe.exec(xml)) !== null) {
+      const item = itemMatch[1];
       const title   = item.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>|<title[^>]*>(.*?)<\/title>/)?.[1] || "";
       const link    = item.match(/<link>(.*?)<\/link>/)?.[1] || "";
       const desc    = item.match(/<description[^>]*><!\[CDATA\[(.*?)\]\]><\/description>|<description[^>]*>(.*?)<\/description>/)?.[1] || "";
