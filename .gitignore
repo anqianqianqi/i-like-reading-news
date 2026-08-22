@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Secrets — never commit
+deliver.py
+
+# Generated daily output — large, changes every day
+Anqi's News agent/morning_brew_agent/raw_sources.txt
+Anqi's News agent/morning_brew_agent/stories_today.json
+Anqi's News agent/morning_brew_agent/anqi_daily_news.html
+Anqi's News agent/morning_brew_agent/email_preview.html
+daily_brief.log
+
+# Hypothesis test cache
+.hypothesis/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
