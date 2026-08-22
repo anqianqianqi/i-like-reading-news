@@ -157,14 +157,21 @@ export const BALANCE_SYSTEM = `You are a copy editor for a daily news brief. You
 
 ### mechanism steps
 - Each step: max 8 words. No exceptions. Cut ruthlessly.
-- If a step is a full sentence, compress it to a phrase.
+- Use engineering shorthand to compress: `=` for "means", `→` for "causes", `~` for "approximately", `>` for "greater than"
+- If a step is a full sentence, compress it to a phrase using these symbols.
 - If a step just says "X is unknown" or "X was not disclosed" — delete it.
 - If a chain has more than 5 steps, merge the two most similar ones.
 - EXAMPLE:
-  BAD step: "Negotiators failed to finalize the draft steel and aluminum arrangement before the 12:01 a.m. deadline, so the U.S. tariff took effect rather than being exchanged for Canada dropping its prior countermeasures."
-  GOOD step: "Draft accord fails at midnight deadline"
-  BAD step: "Investors discounted the support because $4 billion is small versus the Treasury market's ongoing financing needs."
-  GOOD step: "$4B buyback too small vs Treasury supply"
+  BAD: "Negotiators failed to finalize the draft steel and aluminum arrangement before the 12:01 a.m. deadline, so the U.S. tariff took effect rather than being exchanged for Canada dropping its prior countermeasures."
+  GOOD: "Draft accord fails at midnight deadline"
+  BAD: "Dalio interpreted Treasury's effort as a sign that investors may increasingly require higher yields to finance federal debt."
+  GOOD: "buyback < Treasury supply = investors demand more yield"
+  BAD: "If fiscal deficits are financed at rising rates, policymakers may tolerate inflation, easier money, or currency depreciation rather than sustain higher debt-service costs."
+  GOOD: "rising debt cost → policymakers tolerate inflation/currency depreciation"
+  BAD: "Gold has no issuer risk, while bitcoin has a fixed issuance schedule, used as alternatives to dollar-denominated claims."
+  GOOD: "gold = no issuer risk; BTC = fixed supply → dollar alternatives"
+  BAD: "That hedge demand supports gold and bitcoin when confidence in long-run Treasury purchasing power weakens."
+  GOOD: "dollar debasement fear → bid for gold + BTC"
 
 ### so_what bullets
 - Max 20 words per bullet. Cut everything after the first complete thought.
