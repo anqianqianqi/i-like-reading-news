@@ -2,14 +2,26 @@
 # personalized-news-agent — full pipeline
 # Usage: ./run.sh
 #        ./run.sh --skip-fetch      (reuse existing raw_sources.txt)
-#        ./run.sh --dry-run         (fetch + extract only, no render)
 #
-# Requires: OPENAI_API_KEY environment variable
+# Requires: OPENAI_API_KEY — loaded from /home/anqiluo/kiro/.env
 
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
 PIPELINE="$DIR/pipeline"
 LOG="$DIR/pipeline/run.log"
+
+# Load API key from .env file
+ENV_FILE="/home/anqiluo/kiro/.env"
+if [ -f "$ENV_FILE" ]; then
+  export $(grep -v '^#' "$ENV_FILE" | xargs)
+fi
+
+if [ -z "$OPENAI_API_KEY" ]; then
+  echo "✗ OPENAI_API_KEY not set."
+  echo "  Edit /home/anqiluo/kiro/.env and add:"
+  echo "  OPENAI_API_KEY=sk-..."
+  exit 1
+fi
 
 echo "=== $(date) ===" | tee -a "$LOG"
 

@@ -7,6 +7,8 @@ __pycache__/
 
 # Secrets — never commit
 deliver.py
+.env
+*.env
 
 # Generated daily output — large, changes every day
 Anqi's News agent/morning_brew_agent/raw_sources.txt
