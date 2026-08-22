@@ -1,98 +1,86 @@
 /**
- * storage.ts — Vercel Blob persistence via REST API.
+ * storage.ts — Vercel Blob persistence using @vercel/blob SDK.
  *
- * Uses BLOB_READ_WRITE_TOKEN or VERCEL_BLOB_READ_WRITE_TOKEN (tries both).
- * Falls back to no-op if neither is available.
+ * The SDK reads BLOB_READ_WRITE_TOKEN automatically from the environment
+ * when the Blob store is connected to the Vercel project.
+ * All operations are no-ops if the token is missing (graceful degradation).
  */
+
+import { put, head, del, list } from "@vercel/blob";
 
 export function todayKey(): string {
   return new Date().toISOString().slice(0, 10); // "2026-08-22"
-}
-
-function getToken(): string | null {
-  return (
-    process.env.BLOB_READ_WRITE_TOKEN ||
-    process.env.VERCEL_BLOB_READ_WRITE_TOKEN ||
-    null
-  );
 }
 
 function blobPath(date: string, filename: string): string {
   return `briefs/${date}/${filename}`;
 }
 
-/** Save a JSON object to Blob. */
+function hasToken(): boolean {
+  return !!(
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    process.env.VERCEL_BLOB_READ_WRITE_TOKEN
+  );
+}
+
+/** Save a JSON object to Blob. Overwrites if exists. */
 export async function saveJSON(date: string, filename: string, data: unknown): Promise<void> {
-  const token = getToken();
-  if (!token) return; // no-op if no token
-
+  if (!hasToken()) return;
   const path = blobPath(date, filename);
-  const body = JSON.stringify(data);
-
-  await fetch(`https://blob.vercel-storage.com/${path}`, {
-    method: "PUT",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json",
-      "x-content-type": "application/json",
-    },
-    body,
+  await put(path, JSON.stringify(data), {
+    access: "public",
+    contentType: "application/json",
+    addRandomSuffix: false,
   });
 }
 
 /** Save raw text to Blob. */
 export async function saveText(date: string, filename: string, text: string): Promise<void> {
-  const token = getToken();
-  if (!token) return;
-
+  if (!hasToken()) return;
   const path = blobPath(date, filename);
-  await fetch(`https://blob.vercel-storage.com/${path}`, {
-    method: "PUT",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "text/plain",
-    },
-    body: text,
+  await put(path, text, {
+    access: "public",
+    contentType: "text/plain",
+    addRandomSuffix: false,
   });
 }
 
-/** Load a JSON object from Blob. Returns null if not found or no token. */
+/** Load a JSON object from Blob. Returns null if not found. */
 export async function loadJSON<T>(date: string, filename: string): Promise<T | null> {
-  const token = getToken();
-  if (!token) return null;
-
-  const path = blobPath(date, filename);
-  const res = await fetch(`https://blob.vercel-storage.com/${path}`, {
-    headers: { "Authorization": `Bearer ${token}` },
-  });
-  if (!res.ok) return null;
-  return res.json() as Promise<T>;
+  if (!hasToken()) return null;
+  try {
+    const path = blobPath(date, filename);
+    const info = await head(path);
+    if (!info) return null;
+    const res = await fetch(info.url);
+    if (!res.ok) return null;
+    return await res.json() as T;
+  } catch {
+    return null;
+  }
 }
 
 /** Check if today's final brief exists. */
 export async function todayBriefExists(date: string): Promise<boolean> {
-  const token = getToken();
-  if (!token) return false;
-
-  const path = blobPath(date, "brief_final.json");
-  const res = await fetch(`https://blob.vercel-storage.com/${path}`, {
-    method: "HEAD",
-    headers: { "Authorization": `Bearer ${token}` },
-  });
-  return res.ok;
+  if (!hasToken()) return false;
+  try {
+    const path = blobPath(date, "brief_final.json");
+    const info = await head(path);
+    return !!info;
+  } catch {
+    return false;
+  }
 }
 
 /** Delete all stored files for a date. */
 export async function deleteBrief(date: string): Promise<void> {
-  const token = getToken();
-  if (!token) return;
-
-  const files = ["brief_final.json", "brief_v1.json", "critique.json", "raw_sources.txt"];
-  for (const f of files) {
-    const path = blobPath(date, f);
-    await fetch(`https://blob.vercel-storage.com/${path}`, {
-      method: "DELETE",
-      headers: { "Authorization": `Bearer ${token}` },
-    }).catch(() => {});
+  if (!hasToken()) return;
+  try {
+    const { blobs } = await list({ prefix: `briefs/${date}/` });
+    for (const blob of blobs) {
+      await del(blob.url).catch(() => {});
+    }
+  } catch {
+    // ignore
   }
 }
