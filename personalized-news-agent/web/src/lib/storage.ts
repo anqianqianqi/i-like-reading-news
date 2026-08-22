@@ -1,12 +1,12 @@
 /**
  * storage.ts — Vercel Blob (private store, OIDC auth).
  *
- * Uses OIDC automatically when running on Vercel (BLOB_STORE_ID present).
- * All blobs stored as private (access: 'private').
+ * put() with access:'private' to write.
+ * head() to check existence, then fetch with OIDC/token to read.
  * Falls back gracefully if BLOB_STORE_ID is missing.
  */
 
-import { put, get, del, list } from "@vercel/blob";
+import { put, head, del, list } from "@vercel/blob";
 
 export function todayKey(): string {
   return new Date().toISOString().slice(0, 10); // "2026-08-22"
@@ -17,12 +17,19 @@ function blobPath(date: string, filename: string): string {
 }
 
 export function hasBlob(): boolean {
-  // OIDC auth: BLOB_STORE_ID is enough when running on Vercel
-  // Token auth: BLOB_READ_WRITE_TOKEN as fallback
   return !!(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
 }
 
-/** Save a JSON object to private Blob. Overwrites if exists. */
+function authHeader(): Record<string, string> {
+  // Prefer short-lived OIDC token when running on Vercel
+  const oidc = process.env.VERCEL_OIDC_TOKEN;
+  if (oidc) return { Authorization: `Bearer ${oidc}` };
+  const rw = process.env.BLOB_READ_WRITE_TOKEN;
+  if (rw) return { Authorization: `Bearer ${rw}` };
+  return {};
+}
+
+/** Save a JSON object to private Blob. */
 export async function saveJSON(date: string, filename: string, data: unknown): Promise<void> {
   if (!hasBlob()) return;
   const path = blobPath(date, filename);
@@ -49,10 +56,13 @@ export async function loadJSON<T>(date: string, filename: string): Promise<T | n
   if (!hasBlob()) return null;
   try {
     const path = blobPath(date, filename);
-    const result = await get(path, { access: "private" });
-    if (!result || result.statusCode !== 200) return null;
-    const text = await new Response(result.stream).text();
-    return JSON.parse(text) as T;
+    // head() returns blob info including the private URL
+    const info = await head(path);
+    if (!info) return null;
+    // Fetch the private URL with auth header
+    const res = await fetch(info.url, { headers: authHeader() });
+    if (!res.ok) return null;
+    return await res.json() as T;
   } catch {
     return null;
   }
@@ -63,8 +73,8 @@ export async function todayBriefExists(date: string): Promise<boolean> {
   if (!hasBlob()) return false;
   try {
     const path = blobPath(date, "brief_final.json");
-    const result = await get(path, { access: "private" });
-    return !!(result && result.statusCode === 200);
+    const info = await head(path);
+    return !!info;
   } catch {
     return false;
   }
