@@ -16,15 +16,32 @@ export default function Home() {
     setLog(prev => [...prev, msg]);
   }
 
+  // Preview mode — render stored fixture without any API call
+  async function previewFixture() {
+    setStatus("rendering");
+    setLog(["Loading fixture data (Aug 22, 2026)..."]);
+    setHtml(""); setError(""); setUsage(null);
+    try {
+      const res = await fetch("/api/fixture");
+      if (!res.ok) throw new Error("Fixture not found");
+      const { data } = await res.json();
+      addLog(`✓ Loaded ${data.stories.length} stories + ${data.quick_hits.length} quick hits`);
+      addLog("Rendering HTML (no API call)...");
+      const rendered = renderEngineer(data);
+      setHtml(rendered);
+      addLog("✓ Done.");
+      setStatus("done");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg); setStatus("error");
+    }
+  }
+
+  // Full pipeline — fetch live sources → OpenAI → render
   async function runPipeline() {
     setStatus("fetching");
-    setLog([]);
-    setHtml("");
-    setError("");
-    setUsage(null);
-
+    setLog([]); setHtml(""); setError(""); setUsage(null);
     try {
-      // Step 1: Fetch news sources
       addLog("Step 1: Fetching 7 news sources...");
       const fetchRes = await fetch("/api/fetch-news");
       if (!fetchRes.ok) throw new Error(`Fetch failed: ${fetchRes.status}`);
@@ -32,7 +49,6 @@ export default function Home() {
       srcLog.forEach((l: string) => addLog(`  ${l}`));
       addLog(`✓ ${(rawSources.length / 1000).toFixed(0)}k chars fetched`);
 
-      // Step 2: Extract via OpenAI
       setStatus("generating");
       addLog("Step 2: Calling OpenAI API (extraction)...");
       const genRes = await fetch("/api/generate", {
@@ -50,7 +66,6 @@ export default function Home() {
       addLog(`✓ Extracted ${data.stories.length} stories + ${data.quick_hits.length} quick hits`);
       addLog(`  Tokens: ${u.prompt_tokens.toLocaleString()} + ${u.completion_tokens.toLocaleString()} = $${cost}`);
 
-      // Step 3: Render HTML
       setStatus("rendering");
       addLog("Step 3: Rendering HTML (Engineer format)...");
       const rendered = renderEngineer(data);
@@ -59,9 +74,7 @@ export default function Home() {
       setStatus("done");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
-      setError(msg);
-      addLog(`✗ Error: ${msg}`);
-      setStatus("error");
+      setError(msg); addLog(`✗ Error: ${msg}`); setStatus("error");
     }
   }
 
@@ -76,26 +89,45 @@ export default function Home() {
         Fetches 7 sources → extracts via OpenAI → renders in Engineer format
       </p>
 
-      <button
-        onClick={runPipeline}
-        disabled={busy}
-        style={{
-          background: busy ? "#a29bfe" : "#6c5ce7",
-          color: "#fff",
-          border: "none",
-          borderRadius: 8,
-          padding: "12px 28px",
-          fontSize: 15,
-          fontWeight: 700,
-          cursor: busy ? "not-allowed" : "pointer",
-          marginBottom: 24,
-        }}
-      >
-        {status === "fetching"   ? "Fetching sources..." :
-         status === "generating" ? "Calling OpenAI..." :
-         status === "rendering"  ? "Rendering..." :
-         "Generate Today's News"}
-      </button>
+      <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
+        {/* Preview button — no API call, uses stored fixture */}
+        <button
+          onClick={previewFixture}
+          disabled={busy}
+          style={{
+            background: "#fff", color: "#6c5ce7",
+            border: "2px solid #6c5ce7", borderRadius: 8,
+            padding: "12px 24px", fontSize: 14, fontWeight: 700,
+            cursor: busy ? "not-allowed" : "pointer",
+          }}
+        >
+          Preview Saved Format (Aug 22)
+        </button>
+
+        {/* Live button — fetches + calls OpenAI */}
+        <button
+          onClick={runPipeline}
+          disabled={busy}
+          style={{
+            background: busy ? "#a29bfe" : "#6c5ce7",
+            color: "#fff", border: "none", borderRadius: 8,
+            padding: "12px 24px", fontSize: 14, fontWeight: 700,
+            cursor: busy ? "not-allowed" : "pointer",
+          }}
+        >
+          {status === "fetching"   ? "Fetching sources..." :
+           status === "generating" ? "Calling OpenAI..." :
+           status === "rendering"  ? "Rendering..." :
+           "Generate Today's News (Live)"}
+        </button>
+      </div>
+
+      {usage && (
+        <p style={{ fontSize: 12, color: "#636e72", marginBottom: 12 }}>
+          Tokens used: {usage.prompt_tokens.toLocaleString()} + {usage.completion_tokens.toLocaleString()} —
+          estimated cost: ${((usage.prompt_tokens * 2.5 + usage.completion_tokens * 10) / 1_000_000).toFixed(4)}
+        </p>
+      )}
 
       {log.length > 0 && (
         <div style={{

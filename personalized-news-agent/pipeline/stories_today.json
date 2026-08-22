@@ -1,0 +1,569 @@
+{
+  "date": "Saturday, August 22, 2026",
+  "markets": {
+    "summary_title": "Week Ends Down Despite Friday Rally; Bitcoin Best Week in 2 Years; Nvidia Earnings Loom",
+    "key_mechanism": "US borrows $2T/yr → bond supply exceeds demand → bond prices fall → yield rises → all long-term borrowing gets expensive → stocks fall",
+    "week_ahead": "Nvidia Q2 earnings Wednesday — the AI boom's report card; guidance is what moves the market, not the beat. PCE inflation data (Fed's preferred gauge) — if hot, rate hike thesis gains credibility. Jackson Hole Fed symposium — every word from Powell parsed for hike vs. hold signal. Canada 50% tariffs now live — watch for retaliatory measures.",
+    "tickers": [
+      {
+        "label": "S&P 500",
+        "value": "7,674",
+        "change": "2nd wk loss",
+        "direction": "dn"
+      },
+      {
+        "label": "Nasdaq",
+        "value": "26,180",
+        "change": "+0.43% Fri",
+        "direction": "up"
+      },
+      {
+        "label": "Dow",
+        "value": "53,277",
+        "change": "+500 Fri",
+        "direction": "up"
+      },
+      {
+        "label": "10-Yr Yield",
+        "value": "4.738%",
+        "change": "+4bps",
+        "direction": "dn"
+      },
+      {
+        "label": "Bitcoin",
+        "value": "$78,470",
+        "change": "+7.99%",
+        "direction": "up"
+      },
+      {
+        "label": "Robinhood",
+        "value": "$108",
+        "change": "+13.70%",
+        "direction": "up"
+      },
+      {
+        "label": "Gold",
+        "value": "↑ bid",
+        "change": "safe haven",
+        "direction": "up"
+      },
+      {
+        "label": "Nvidia",
+        "value": "reports",
+        "change": "Wed earnings",
+        "direction": "neutral"
+      },
+      {
+        "label": "Broadcom",
+        "value": "$70B",
+        "change": "debt deal",
+        "direction": "up"
+      }
+    ]
+  },
+  "stories": [
+    {
+      "title": "US–Canada 50% Tariffs Live After Talks Collapse at Last Minute",
+      "sources": [
+        "MB",
+        "CNBC",
+        "Reuters"
+      ],
+      "what": "US–Canada trade negotiations collapsed at the deadline. 50% tariffs on $20B in Canadian goods took effect at 12:01am. A draft deal had been close — US lowers steel/aluminum/auto tariffs, Canada drops retaliatory measures — but negotiators couldn't close it. PM Carney: Canada retaliates 'dollar for dollar.'",
+      "mechanism": [
+        {
+          "label": "",
+          "steps": [
+            {
+              "text": "US-Canada talks collapse at midnight deadline",
+              "type": "cause"
+            },
+            {
+              "text": "50% tariff activates on Canadian steel, aluminum, autos, lumber",
+              "type": "result-short"
+            },
+            {
+              "text": "tariff = tax on US importers not Canada — US companies pay the 50%",
+              "type": "mechanism"
+            },
+            {
+              "text": "Canadian input costs rise 50% for US manufacturers",
+              "type": "mechanism"
+            },
+            {
+              "text": "manufacturers absorb margin hit OR raise prices — consumer inflation gets new input",
+              "type": "result-long"
+            }
+          ]
+        }
+      ],
+      "highlights": [
+        {
+          "text": "50% tariffs",
+          "type": "risk"
+        },
+        {
+          "text": "$20B",
+          "type": "number"
+        },
+        {
+          "text": "dollar for dollar",
+          "type": "risk"
+        }
+      ],
+      "so_what": [
+        "Tariffs are a domestic tax — US importers pay the 50%, not Canada.",
+        "Bearish: US auto/lumber/steel manufacturers with Canadian supply chains face margin squeeze.",
+        "Watch: Canadian energy stocks for oversold bounce if a deal gets done eventually."
+      ],
+      "price_moves": [],
+      "glossary_terms": []
+    },
+    {
+      "title": "Ray Dalio: Bessent's Bond Buyback Is a Debt Crisis Signal — Buy Gold and Bitcoin",
+      "sources": [
+        "CNBC",
+        "SA"
+      ],
+      "what": "Ray Dalio told CNBC that Treasury Secretary Bessent's bond buyback intervention is 'a sign a debt crisis is getting closer,' not a fix. JPMorgan called it 'paying your mortgage with your credit card.' Yields rebounded by end of week, erasing all intervention gains. SA: 'Worst bond selloff since 2007.'",
+      "mechanism": [
+        {
+          "label": "Why yields spiked",
+          "steps": [
+            {
+              "text": "US borrows $2T+ this year",
+              "type": "cause"
+            },
+            {
+              "text": "Treasury issues massive bond supply — more than buyers want",
+              "type": "mechanism"
+            },
+            {
+              "text": "bond prices fall, yield rises (yield = coupon ÷ price, inverse)",
+              "type": "mechanism"
+            },
+            {
+              "text": "30-yr yield hits 5.33% — a 19-year high",
+              "type": "result-short"
+            },
+            {
+              "text": "all long-term borrowing anchored to it gets expensive — mortgages, corporate debt, consumer loans",
+              "type": "result-long"
+            }
+          ]
+        },
+        {
+          "label": "Why buyback failed",
+          "steps": [
+            {
+              "text": "Bessent doubles Treasury buybacks",
+              "type": "cause"
+            },
+            {
+              "text": "temporarily removes bonds from market",
+              "type": "mechanism"
+            },
+            {
+              "text": "yields dip for one day",
+              "type": "result-short"
+            },
+            {
+              "text": "total debt ($40T) unchanged — buying old debt with new debt solves nothing",
+              "type": "mechanism"
+            },
+            {
+              "text": "yields rebound by end of week — market saw through it",
+              "type": "result-long"
+            }
+          ]
+        }
+      ],
+      "highlights": [
+        {
+          "text": "$40.047T",
+          "type": "risk"
+        },
+        {
+          "text": "5.33%",
+          "type": "risk"
+        },
+        {
+          "text": "19-yr high",
+          "type": "risk"
+        },
+        {
+          "text": "debt crisis",
+          "type": "risk"
+        },
+        {
+          "text": "gold and Bitcoin",
+          "type": "positive"
+        },
+        {
+          "text": "rate HIKE",
+          "type": "risk"
+        }
+      ],
+      "so_what": [
+        "Buying back debt with new debt does not reduce the total — it just moves the problem.",
+        "Build real-asset allocation now: gold and Bitcoin are fixed-supply hedges against currency debasement.",
+        "Watch Jackson Hole — any Powell hike signal reprices high-multiple AI names hard."
+      ],
+      "price_moves": [
+        {
+          "ticker": "$TLT",
+          "direction": "dn",
+          "magnitude": "",
+          "reason": "long-duration bond ETF — hurt most by yield spike",
+          "company": "iShares 20yr+ Treasury ETF"
+        },
+        {
+          "ticker": "$GLD",
+          "direction": "up",
+          "magnitude": "",
+          "reason": "Dalio recommends gold as debt crisis hedge",
+          "company": "SPDR Gold Shares"
+        },
+        {
+          "ticker": "$BTC",
+          "direction": "up",
+          "magnitude": "+7.99% wk",
+          "reason": "fixed supply hedge, best week in 2yr",
+          "company": "Bitcoin"
+        },
+        {
+          "ticker": "$NVDA",
+          "direction": "watch",
+          "magnitude": "",
+          "reason": "DCF-sensitive; if Jackson Hole hawkish → repricing risk",
+          "company": "Nvidia"
+        }
+      ],
+      "glossary_terms": [
+        "bond yield",
+        "bond vigilante",
+        "duration risk"
+      ]
+    },
+    {
+      "title": "Anthropic IPO Filing Will List 'AI Backlash' as SEC Risk Factor — $852B Valuation",
+      "sources": [
+        "CNBC"
+      ],
+      "what": "CNBC exclusive: Anthropic's upcoming IPO filing will explicitly list AI backlash as a material business risk — the first major AI company to formally disclose societal resistance to AI in an SEC filing. Current valuation: $852B at employee tender offer. Public listing may not arrive until 2027.",
+      "mechanism": [
+        {
+          "label": "",
+          "chain": "Anthropic IPO draft filed → lawyers must list material risks → AI backlash qualifies → SEC disclosure sets industry precedent"
+        }
+      ],
+      "highlights": [
+        {
+          "text": "AI backlash",
+          "type": "risk"
+        },
+        {
+          "text": "$852B",
+          "type": "number"
+        },
+        {
+          "text": "Anthropic",
+          "type": "company"
+        },
+        {
+          "text": "material business risk",
+          "type": "risk"
+        }
+      ],
+      "so_what": [
+        "SEC risk factor = legal admission this could materially harm revenue, not just PR noise.",
+        "Two-sided: bearish on sector valuation headwind, bullish that disclosure signals institutional-grade governance.",
+        "Watch the actual prospectus language — regulators will use it as a leverage point against AI companies."
+      ],
+      "price_moves": [
+        {
+          "ticker": "$MSFT",
+          "direction": "watch",
+          "magnitude": "",
+          "reason": "owns 49% of OpenAI; AI backlash risk factor affects whole sector"
+        }
+      ],
+      "glossary_terms": []
+    },
+    {
+      "title": "Tesla Cybercab Fully Driverless in Austin + Chinese Robot Beats Usain Bolt's 100m Record",
+      "sources": [
+        "TLDR",
+        "Reuters",
+        "CNBC"
+      ],
+      "what": "Tesla's Austin Cybercab robotaxis are confirmed fully driverless — tracking data shows no safety driver present in operating vehicles, ahead of the end-of-August public launch event. Separately, a Chinese humanoid robot beat Usain Bolt's 100m world record of 9.58 seconds in a test run. Waymo revealed the hardware/software 'brain' powering its robotaxi fleet.",
+      "mechanism": [
+        {
+          "label": "",
+          "chain": "Cybercab removes safety driver + Chinese robot breaks Bolt 100m record same week  → safety driver was the legal buffer between Tesla and full liability (without it, Tesla accepts that the car can operate autonomously with no human fallback)  → 9.58s barrier crossed because AI servo motors can optimize stride length and frequency beyond human physiological limits  → both events = physical AI crossing human-level benchmarks simultaneously in mobility and locomotion  → same inflection as AlphaGo in 2016: once barrier breaks, acceleration follows"
+        }
+      ],
+      "highlights": [
+        {
+          "text": "fully driverless",
+          "type": "positive"
+        },
+        {
+          "text": "Usain Bolt's 100m world record",
+          "type": "positive"
+        },
+        {
+          "text": "Tesla",
+          "type": "company"
+        },
+        {
+          "text": "Waymo",
+          "type": "company"
+        }
+      ],
+      "so_what": [
+        "No safety driver = regulatory threshold crossed; Tesla is accepting full autonomous liability.",
+        "Bullish Tesla robotaxi; bearish Uber/Lyft on 3-5yr horizon as robotaxi undercuts human-driven economics.",
+        "Watch whether Waymo matches fully-driverless publicly — that confirms the competitive race is on."
+      ],
+      "price_moves": [
+        {
+          "ticker": "$TSLA",
+          "direction": "up",
+          "magnitude": "",
+          "reason": "fully driverless confirmed — robotaxi thesis advancing",
+          "company": "Tesla"
+        },
+        {
+          "ticker": "$UBER",
+          "direction": "dn",
+          "magnitude": "",
+          "reason": "robotaxi at scale is structural threat to rideshare 3-5yr horizon",
+          "company": "Uber"
+        }
+      ],
+      "glossary_terms": []
+    },
+    {
+      "title": "Ghost Jobs: 1 in 5 Listings Are Fake — Lawmakers Moving to Ban Them, Texas Goes After LinkedIn",
+      "sources": [
+        "MB"
+      ],
+      "what": "Roughly 1 in 5 online job listings per quarter are ghost jobs — postings that attract applicants but lead to no hiring. 81% of recruiters admit their employers post fake listings. New York just passed a bill requiring hiring timelines. Texas AG Ken Paxton opened an investigation into LinkedIn for allegedly promoting and profiting from ghost job listings.",
+      "mechanism": [
+        {
+          "label": "",
+          "chain": "1 in 5 listings are ghost jobs → Texas AG targets LinkedIn → platform liability shifts → job board economics change"
+        }
+      ],
+      "highlights": [
+        {
+          "text": "1 in 5",
+          "type": "risk"
+        },
+        {
+          "text": "81%",
+          "type": "risk"
+        },
+        {
+          "text": "LinkedIn",
+          "type": "company"
+        },
+        {
+          "text": "ghost jobs",
+          "type": "risk"
+        }
+      ],
+      "so_what": [
+        "Texas going after LinkedIn shifts liability from employer to platform — changes the incentive structure.",
+        "Bullish: verification-first job platforms (charge per verified hire, not per listing) get a regulatory tailwind.",
+        "Actionable for job seekers: cold applications to platforms have 1-in-5 hit rate — prioritize referral networks."
+      ],
+      "price_moves": [],
+      "glossary_terms": []
+    },
+    {
+      "title": "Iran: Selective Hormuz Openings + New US Sanctions + Xi–Trump Meeting Imminent",
+      "sources": [
+        "Reuters",
+        "CNBC",
+        "MB"
+      ],
+      "what": "Iran granted permission for Iraqi oil tankers to pass through Hormuz — a selective, tactical opening. Tough new US sanctions on Iran are imminent. JD Vance: 'economic pressure is the best way to achieve objectives in Iran.' US Navy transited Taiwan Strait immediately before a planned Xi–Trump meeting. Seoul's Incheon Airport became the world's busiest international hub, overtaking Dubai which collapsed after the Iran war started.",
+      "mechanism": [
+        {
+          "label": "",
+          "chain": "Iran opens Hormuz for Iraq only → selective lever not binary blockade → new US sanctions incoming → UAE trade cut"
+        }
+      ],
+      "highlights": [
+        {
+          "text": "Hormuz",
+          "type": "risk"
+        },
+        {
+          "text": "economic pressure",
+          "type": "risk"
+        },
+        {
+          "text": "Xi–Trump meeting",
+          "type": "positive"
+        },
+        {
+          "text": "world's busiest international hub",
+          "type": "positive"
+        }
+      ],
+      "so_what": [
+        "Selective Hormuz opening for Iraq only = precision leverage, not binary blockade — Iran is still in control.",
+        "Oil stays bid; Korean Air/Asiana structurally benefit from rerouted international traffic through Seoul.",
+        "Watch Xi-Trump meeting — any US-China Iran agreement immediately changes the oil supply calculus."
+      ],
+      "price_moves": [
+        {
+          "ticker": "$USO",
+          "direction": "up",
+          "magnitude": "",
+          "reason": "oil stays bid as Hormuz stays selectively controlled",
+          "company": "United States Oil Fund"
+        }
+      ],
+      "glossary_terms": []
+    }
+  ],
+  "quick_hits": [
+    {
+      "topic": "Nvidia Q2 earnings",
+      "detail": "Reports Wednesday — guidance on Blackwell demand is the real signal, not the beat.",
+      "highlight": "Blackwell demand",
+      "source": "CNBC"
+    },
+    {
+      "topic": "Jackson Hole",
+      "detail": "Fed symposium next week — every Powell word parsed for hike vs. hold signal.",
+      "highlight": "hike vs. hold",
+      "source": "CNBC"
+    },
+    {
+      "topic": "PCE data",
+      "detail": "Fed's preferred inflation gauge out next week — if hot, rate hike thesis gains credibility.",
+      "highlight": "rate hike",
+      "source": "CNBC"
+    },
+    {
+      "topic": "Broadcom debt",
+      "detail": "$70B debt deal expected — one of largest corporate debt deals ever, financing AI chip dominance.",
+      "highlight": "$70B",
+      "source": "CNBC"
+    },
+    {
+      "topic": "Anthropic Parka",
+      "detail": "Mac app listens to meetings, converts discussion into runnable Claude agent tasks — auto-execute vs approval TBD.",
+      "highlight": "listens to meetings",
+      "source": "TLDR"
+    },
+    {
+      "topic": "Slack Code",
+      "detail": "AI coding agents as first-class team members in Slack channels — spins up dedicated code channel per task.",
+      "highlight": "",
+      "source": "TLDR"
+    },
+    {
+      "topic": "Cursor Origin",
+      "detail": "GitHub competitor officially in production.",
+      "highlight": "GitHub competitor",
+      "source": "TLDR"
+    },
+    {
+      "topic": "Apple macOS leak",
+      "detail": "Accidentally revealed 10+ unreleased products: AirPods with cameras, iPhone 18 Pro changes, Calendar updates.",
+      "highlight": "AirPods with cameras",
+      "source": "TLDR"
+    },
+    {
+      "topic": "ChatGPT Messages",
+      "detail": "Adds Apple Messages integration on Mac.",
+      "highlight": "",
+      "source": "TLDR"
+    },
+    {
+      "topic": "FOMC minutes",
+      "detail": "Many participants believe rate hike may be necessary if inflation stays elevated — outlook highly uncertain.",
+      "highlight": "rate hike may be necessary",
+      "source": "MB"
+    },
+    {
+      "topic": "Tesla China recall",
+      "detail": "3M vehicles recalled over door handle safety and driver monitoring — software update fix.",
+      "highlight": "3M vehicles",
+      "source": "CNBC"
+    },
+    {
+      "topic": "TikTok DOJ",
+      "detail": "Pays $400M to settle child privacy claims.",
+      "highlight": "$400M",
+      "source": "MB"
+    },
+    {
+      "topic": "Bitcoin",
+      "detail": "+7.99% this week, best week in 2 years — Clarity Act momentum; Robinhood +13.7%.",
+      "highlight": "+7.99%",
+      "source": "MB"
+    },
+    {
+      "topic": "Grok security",
+      "detail": "Exfiltrates user data when given encrypted malicious instructions — XAI vulnerability.",
+      "highlight": "exfiltrates user data",
+      "source": "TLDR"
+    },
+    {
+      "topic": "Cloudflare Spectre",
+      "detail": "Workers attack leaks JWT tokens from co-located workers at 12 bits/second.",
+      "highlight": "JWT tokens",
+      "source": "TLDR"
+    },
+    {
+      "topic": "SCOTUS ballroom",
+      "detail": "Allows Trump $400M White House ballroom construction to continue pending legal challenge.",
+      "highlight": "$400M",
+      "source": "CNBC"
+    },
+    {
+      "topic": "Citadel unwind",
+      "detail": "Unwound 80% of Situational Awareness risk — ~100 block trades totaling $4B+ in market value.",
+      "highlight": "$4B+",
+      "source": "MB"
+    },
+    {
+      "topic": "SOXX paradox",
+      "detail": "Semiconductors posting best earnings in S&P 500 but worst tape — market pricing in peak, not growth.",
+      "highlight": "worst tape",
+      "source": "SA"
+    },
+    {
+      "topic": "Marvell vs Broadcom",
+      "detail": "SA: buying Marvell before Broadcom is a mistake — Broadcom has deeper hyperscaler lock-in.",
+      "highlight": "Broadcom",
+      "source": "SA"
+    },
+    {
+      "topic": "Seoul Incheon",
+      "detail": "Becomes world busiest international airport — overtook Dubai after Iran war collapsed Middle East travel.",
+      "highlight": "world busiest",
+      "source": "MB"
+    },
+    {
+      "topic": "UK crash",
+      "detail": "7 dead after vehicle drives wrong way into police car.",
+      "highlight": "7 dead",
+      "source": "Reuters"
+    },
+    {
+      "topic": "Sweden school attack",
+      "detail": "Teenage girl killed in sword attack — police probing online networks.",
+      "highlight": "",
+      "source": "Reuters"
+    }
+  ]
+}
