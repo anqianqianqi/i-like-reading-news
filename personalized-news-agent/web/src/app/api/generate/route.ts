@@ -195,7 +195,7 @@ ${truncated}`;
       { role: "user",   content: userMessage }
     ],
     temperature: 0.2,
-    max_tokens: 16000,
+    max_tokens: 16384,  // gpt-4o max output — let the model decide when it's done
     response_format: {
       type: "json_schema",
       json_schema: {
