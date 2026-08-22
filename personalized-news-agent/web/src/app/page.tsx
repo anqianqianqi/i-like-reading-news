@@ -218,21 +218,24 @@ export default function Home() {
           </button>
         )}
 
-        {/* Re-balance button — only if raw brief exists */}
-        {hasRaw && (
-          <button
-            onClick={reBalance}
-            disabled={busy}
-            style={{
-              background: "#fff", color: "#10b981",
-              border: "2px solid #10b981", borderRadius: 8,
-              padding: "9px 18px", fontSize: 13, fontWeight: 700,
-              cursor: busy ? "not-allowed" : "pointer",
-            }}
-          >
-            Re-balance (gpt-4o-mini)
-          </button>
-        )}
+        {/* Re-balance button — always visible, greyed out if no raw brief */}
+        <button
+          onClick={reBalance}
+          disabled={busy || !hasRaw}
+          title={!hasRaw ? "Run the full pipeline first to generate raw brief" : "Re-balance stored raw brief (~$0.01)"}
+          style={{
+            background: "#fff",
+            color: hasRaw ? "#10b981" : "#b2bec3",
+            border: `2px solid ${hasRaw ? "#10b981" : "#dfe6e9"}`,
+            borderRadius: 8,
+            padding: "9px 18px", fontSize: 13, fontWeight: 700,
+            cursor: (busy || !hasRaw) ? "not-allowed" : "pointer",
+          }}
+        >
+          Re-balance
+        </button>
+
+        {cost && (
           <span style={{ fontSize: 11, color: "#636e72" }}>{cost}</span>
         )}
       </div>
