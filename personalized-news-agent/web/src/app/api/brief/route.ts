@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { todayKey, saveJSON, saveText, loadJSON, todayBriefExists, deleteBrief } from "@/lib/storage";
 
-export const maxDuration = 300; // 5 minutes — Pro plan max
+export const maxDuration = 300;
 
 // ── Source scraper ─────────────────────────────────────────────────────────
 
@@ -334,26 +334,22 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const { force } = body as { force?: boolean };
   const date = todayKey();
+  // No persistent cache yet — always run the pipeline
   const log: string[] = [];
 
   try {
-
   // Return cached if exists and not forcing
   if (!force) {
-    try {
-      const exists = await todayBriefExists(date);
-      if (exists) {
-        log.push(`✓ Cached brief for ${date} found — loading from Blob`);
-        const brief = await loadJSON(date, "brief_final.json");
-        const critique = await loadJSON(date, "critique.json");
-        return NextResponse.json({ brief, critique, date, log, cached: true });
-      }
-    } catch (blobErr) {
-      log.push(`⚠ Blob unavailable (${blobErr instanceof Error ? blobErr.message : "unknown"}) — proceeding without cache`);
+    const exists = await todayBriefExists(date).catch(() => false);
+    if (exists) {
+      log.push(`✓ Cached brief for ${date} — loading from storage`);
+      const brief = await loadJSON(date, "brief_final.json");
+      const critique = await loadJSON(date, "critique.json");
+      return NextResponse.json({ brief, critique, date, log, cached: true });
     }
   } else {
-    log.push("Force regenerate — clearing cache...");
-    try { await deleteBrief(date); } catch { /* ignore */ }
+    log.push("Force regenerate...");
+    await deleteBrief(date).catch(() => {});
   }
 
   // Step 1: Fetch
@@ -361,7 +357,7 @@ export async function POST(req: NextRequest) {
   const { rawSources, date: fetchDate, srcLog } = await scrapeAllSources();
   srcLog.forEach(l => log.push(l));
   log.push(`✓ ${(rawSources.length / 1000).toFixed(0)}k chars`);
-  try { await saveText(date, "raw_sources.txt", rawSources); } catch { /* blob optional */ }
+  saveText(date, "raw_sources.txt", rawSources).catch(() => {});
 
   const MAX_CHARS = 50000;
   const truncated = rawSources.length > MAX_CHARS ? rawSources.slice(0, MAX_CHARS) + "\n[truncated]" : rawSources;
@@ -381,7 +377,7 @@ export async function POST(req: NextRequest) {
 
   log.push(`✓ ${(brief_v1 as { stories: unknown[] }).stories.length} stories + ${(brief_v1 as { quick_hits: unknown[] }).quick_hits.length} quick hits`);
   log.push(`  Tokens: ${u1.prompt_tokens.toLocaleString()} + ${u1.completion_tokens.toLocaleString()}`);
-  await saveJSON(date, "brief_v1.json", brief_v1).catch(() => {});
+  saveJSON(date, "brief_v1.json", brief_v1).catch(() => {});
 
   // Step 3: Critique
   log.push("Step 3: Critiquing quality...");
@@ -404,7 +400,7 @@ export async function POST(req: NextRequest) {
 
   log.push(`✓ ${critique.passed_count} passed, ${critique.failed_count} failed`);
   (critique.issues || []).forEach((i: { story_title: string; failures: string[] }) => log.push(`  ⚠ "${i.story_title}": ${i.failures[0]}`));
-  await saveJSON(date, "critique.json", critique).catch(() => {});
+  saveJSON(date, "critique.json", critique).catch(() => {});
 
   // Step 4: Rewrite
   const highPri = (critique.issues || []).filter((i: { rewrite_priority: string }) => i.rewrite_priority === "high");
@@ -447,8 +443,7 @@ export async function POST(req: NextRequest) {
     log.push("Step 4: All stories passed.");
   }
 
-  await saveJSON(date, "brief_final.json", brief_final).catch(() => {});
-
+  saveJSON(date, "brief_final.json", brief_final).catch(() => {});
   const cost = ((u1.prompt_tokens + u2.prompt_tokens) * 2.5 + (u1.completion_tokens + u2.completion_tokens) * 10) / 1_000_000;
   log.push(`✓ Done · $${cost.toFixed(4)}`);
 
