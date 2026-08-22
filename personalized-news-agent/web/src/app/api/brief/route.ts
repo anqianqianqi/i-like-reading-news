@@ -269,13 +269,20 @@ export async function POST(req: NextRequest) {
 
   try {
   // Check blob availability and log
-  const blobAvailable = !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+  const blobAvailable = !!(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
+  if (!blobAvailable) {
+    log.push("⚠ BLOB_STORE_ID not found — results won't be cached.");
+  }
+
+  // Return cached if exists and not forcing
+  if (!force) {
     const exists = await todayBriefExists(date).catch(() => false);
     if (exists) {
       log.push(`✓ Cached brief for ${date} — loading from storage`);
       const brief = await loadJSON(date, "brief_final.json");
+      const brief_balanced = await loadJSON(date, "brief_balanced.json");
       const critique = await loadJSON(date, "critique.json");
-      return NextResponse.json({ brief, critique, date, log, cached: true });
+      return NextResponse.json({ brief, brief_balanced: brief_balanced || brief, critique, date, log, cached: true });
     }
   } else {
     log.push("Force regenerate...");
