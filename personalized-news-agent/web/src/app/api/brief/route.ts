@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { todayKey, saveJSON, saveText, loadJSON, todayBriefExists, deleteBrief } from "@/lib/storage";
+import { GENERATE_SYSTEM, CRITIQUE_SYSTEM, REWRITE_SYSTEM } from "@/lib/prompts";
 
 export const maxDuration = 300;
 
@@ -104,94 +105,6 @@ async function openai(apiKey: string, payload: object): Promise<{ data: unknown;
   }
   return { data, usage: result.usage };
 }
-
-// ── Prompts (imported inline to avoid self-HTTP) ───────────────────────────
-
-const GENERATE_SYSTEM = `You are extracting and analyzing today's news for a personalized news digest.
-Your job is INTELLIGENCE ONLY — understanding, deduplication, causal analysis.
-You return structured JSON only. No HTML.
-
-## YOUR READER: The Engineer
-Thinks in systems and flowcharts. Wants mechanisms, not just outcomes.
-Has finance/investing knowledge. Wants market implications on everything.
-
-## QUALITY BAR
-
-BAD (too shallow):
-  what: "US imposes 50% tariffs on Canadian goods after failed trade talks."
-  mechanism: ["Companies fail to agree", "US imposes tariffs", "Canada retaliates"]
-  so_what: ["Trade tensions could disrupt supply chains.", "Monitor retaliatory measures."]
-
-GOOD (required depth):
-  what: "US-Canada trade talks collapsed at midnight. 50% tariffs on $20B Canadian goods (steel, aluminum, autos, lumber) activated at 12:01am. PM Carney confirmed dollar-for-dollar retaliation. A draft deal was close but negotiators couldn't bridge the final gap."
-  mechanism steps:
-  - cause: "US-Canada talks collapse at midnight deadline"
-  - mechanism: "50% tariff activates on Canadian steel, aluminum, autos, lumber"
-  - mechanism: "tariff = tax on US importers not Canada — US companies pay the 50%, not Canadians"
-  - mechanism: "Canadian input costs rise 50% for US manufacturers using Canadian materials"
-  - result-long: "manufacturers absorb margin hit OR raise prices — consumer inflation gets new input"
-  so_what:
-  - "Tariffs are a domestic tax — US importers pay, not Canada. Affected: US auto assemblers, homebuilders."
-  - "Bearish US manufacturers with Canadian supply chains. Watch corn/soybean futures if Canada retaliates on ag."
-  - "Watch Sept 8 deadline — Canada retaliatory tariffs activate."
-
-## EXTRACTION RULES
-
-### Story selection
-FULL STORY SLOT: geopolitical events with economic consequences, major market moves, earnings results, policy with direct market impact, tech milestones changing competitive dynamics.
-QUICK HIT ONLY: minor legal procedural news, product feature announcements with no market impact, social/cultural stories, "court allows X to continue" with no economic consequence yet.
-
-### Deduplication
-Merge stories covered by multiple sources into ONE. List all source IDs.
-
-### One story = one theme
-Group parallel threads proving the same thesis into one story. Use "Event A + Event B → shared implication" format.
-
-### Mechanism chains
-3 layers: CAUSE → INTERMEDIATE MECHANISM → RESULT. 4-6 steps. No bracket labels. No parenthetical explanations in chain.
-
-### No buzzwords without definition
-Define in so_what on first use: yield, DCF, tariff, rate hike, basis points, short squeeze, ASIC, hyperscaler, capex, inference, leverage, duration risk, bond vigilante.
-
-### Glossary terms — always populate
-Tag ALL finance/tech terms per story: bond yield, DCF, tariff, rate hike, basis points, short squeeze, ASIC, hyperscaler, capex, inference, leverage, duration risk, bond vigilante, ETF, PCE, FOMC. Finance story with zero glossary terms is wrong.
-
-### So what field
-2-3 bullets, max 20 words each. Lead with punchline. Include specific sector/ticker/direction. NEVER write "monitor developments" or "watch for changes" — always name what specifically.
-
-### Price moves — no hallucinations
-ONLY add tickers explicitly named in sources. Never infer affected companies.
-
-### Coverage requirements — CRITICAL
-- MINIMUM 6 main stories. MAXIMUM 8.
-- MINIMUM 15 quick hits. Target 20-25.
-- Every source item must appear somewhere. Nothing gets dropped.
-- Raw sources ~50k chars — output must reflect that volume.`;
-
-const CRITIQUE_SYSTEM = `You are a quality reviewer for a personalized news digest.
-Review each story and flag failures. Return JSON: { issues: [...], passed_count, failed_count }
-
-A story FAILS if:
-- "what" is vague — missing specific numbers, names, dollar amounts
-- mechanism steps just restate events without explaining WHY each step causes the next
-- so_what says "monitor developments" or "watch for changes" without specifics
-- price_moves contains tickers NOT explicitly named in the source
-
-A story PASSES if:
-- "what" contains specific facts (numbers, names, amounts)
-- mechanism explains causality at each step
-- so_what gives specific investment direction (sector, ticker, direction)
-
-Flag format: { story_index, story_title, failures: string[], missing_facts: string[], rewrite_priority: "high"|"medium" }
-Only flag genuinely failing stories.`;
-
-const REWRITE_SYSTEM = `You are rewriting a news story to fix quality issues. Fix only what is flagged.
-
-what field: include specific numbers, dollar amounts, names, timelines.
-mechanism steps: each step explains WHY it causes the next. 4-6 steps. Types: cause/mechanism/result-short/result-long.
-so_what: 2-3 bullets, max 20 words, specific ticker/sector/direction. NEVER "monitor developments".
-
-Return JSON: { story_index, updated_what, updated_mechanism: [{label, steps: [{text, type}]}], updated_so_what: string[] }`;
 
 // ── JSON Schema for generation ─────────────────────────────────────────────
 
