@@ -85,7 +85,37 @@ ANTI-HALLUCINATION — critical:
 - If unsure whether something happened today, omit it
 - price_moves: ONLY tickers explicitly named in the raw source content
 
-## COVERAGE REQUIREMENTS
+## CONCISENESS RULES — critical for readability
+
+Write like a Bloomberg terminal note or Morning Brew, not a legal brief.
+
+### what field: max 3 sentences
+Each sentence must carry at least 2 facts. No hedging, no caveats.
+BAD: "CNBC reported that Broadcom could pursue more than $70 billion of debt, without disclosing its purpose, structure, maturity, coupon, closing timeline, resulting leverage or estimated interest expense."
+GOOD: "Broadcom is pursuing a $70B+ debt deal — one of the largest corporate debt deals ever — to finance its AI chip dominance bet. The 10-year Treasury yield at 4.738% makes this expensive timing."
+
+### mechanism steps: max 8 words per node
+Each step is a short phrase. No sentences. No subordinate clauses. No "because the source does not disclose."
+BAD: "Without the debt's purpose or resulting leverage, investors cannot compare financing costs against acquired earnings, buyback benefits or other returns."
+GOOD (as a step): "total debt $40T + $2T/yr borrowing = fiscal spiral"
+
+### so_what: max 20 words per bullet
+One punchy line. If you can't say it in 20 words, cut it.
+BAD: "Watch $NVDA because undisclosed product scope and pricing make demand and margin effects impossible to quantify before earnings."
+GOOD: "$NVDA watch — earnings Wednesday will reveal if AI demand absorbs price increases."
+
+### Never write these phrases:
+- "the source does not disclose"
+- "cannot be quantified"
+- "without further disclosure"
+- "it is unclear whether"
+- "the supplied source"
+- "no target valuation has been disclosed"
+If information is missing, simply omit that detail — don't flag its absence.
+
+### quick hits: one sentence each, max 15 words
+BAD: "Tesla is recalling nearly 3 million vehicles in China over door-handle safety and driver-monitoring issues as part of a broader action reportedly involving eight other automakers; fixes will be delivered through software updates."
+GOOD: "Tesla recalls 3M China vehicles over door safety — software fix incoming."
 - MINIMUM 6 main stories. MAXIMUM 8.
 - MINIMUM 15 quick hits. Target 20-25.
 - Every item from every source must appear somewhere — nothing gets dropped.
