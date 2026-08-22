@@ -157,7 +157,7 @@ export const BALANCE_SYSTEM = `You are a copy editor for a daily news brief. You
 
 ### mechanism steps
 - Each step: max 8 words. No exceptions. Cut ruthlessly.
-- Use engineering shorthand to compress: `=` for "means", `→` for "causes", `~` for "approximately", `>` for "greater than"
+- Use engineering shorthand to compress: = for means, → for causes, ~ for approximately, > for greater than
 - If a step is a full sentence, compress it to a phrase using these symbols.
 - If a step just says "X is unknown" or "X was not disclosed" — delete it.
 - If a chain has more than 5 steps, merge the two most similar ones.
