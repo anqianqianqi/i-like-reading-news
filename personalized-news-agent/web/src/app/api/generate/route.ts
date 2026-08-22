@@ -37,7 +37,18 @@ Only populate price_moves if the story directly mentions a stock move or has
 an unambiguous direct ticker impact. Leave empty [] otherwise.
 
 ### Quick hits
-Cover EVERYTHING not in main stories. Format: topic, detail, highlight, source.`;
+Cover EVERYTHING not in main stories. Format: topic, detail, highlight, source.
+MINIMUM 15 quick hits. Include every notable item from every source.
+Do not stop early. Keep going until all source content is covered.
+
+### Coverage requirements — CRITICAL
+- MINIMUM 6 main stories. MAXIMUM 8.
+- MINIMUM 15 quick hits. Target 20-25.
+- Every piece of content from every source must appear somewhere — either as a
+  main story or a quick hit. Nothing gets dropped.
+- If you finish the stories and still have content left, put it in quick hits.
+- Do not truncate. Do not summarize away entire topics.
+- The raw sources contain ~50k chars of content. Your output must reflect that volume.`;
 
 const RESPONSE_SCHEMA = {
   type: "object",
@@ -167,7 +178,15 @@ export async function POST(req: Request) {
     ? rawSources.slice(0, MAX_CHARS) + "\n\n[... truncated ...]"
     : rawSources;
 
-  const userMessage = `Today is ${date}.\n\nExtract and analyze the following raw news content:\n\n${truncated}`;
+  const userMessage = `Today is ${date}.
+
+Extract and analyze ALL of the following raw news content.
+IMPORTANT: You must produce at least 6 main stories and at least 15 quick hits.
+Every notable item from every source must appear somewhere in your output.
+Do not stop early. Cover everything.
+
+RAW NEWS CONTENT:
+${truncated}`;
 
   const payload = {
     model: "gpt-4o",
@@ -176,6 +195,7 @@ export async function POST(req: Request) {
       { role: "user",   content: userMessage }
     ],
     temperature: 0.2,
+    max_tokens: 16000,
     response_format: {
       type: "json_schema",
       json_schema: {
