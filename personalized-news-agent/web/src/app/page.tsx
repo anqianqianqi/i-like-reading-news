@@ -6,13 +6,15 @@ import { renderEngineer } from "@/lib/render";
 type Status = "idle" | "checking" | "loading" | "running" | "done" | "error";
 
 export default function Home() {
-  const [status, setStatus]   = useState<Status>("checking");
-  const [log, setLog]         = useState<string[]>([]);
-  const [html, setHtml]       = useState<string>("");
-  const [cached, setCached]   = useState(false);
-  const [error, setError]     = useState<string>("");
-  const [cost, setCost]       = useState<string>("");
-  const [model, setModel]     = useState("gpt-4.1");
+  const [status, setStatus]       = useState<Status>("checking");
+  const [log, setLog]             = useState<string[]>([]);
+  const [html, setHtml]           = useState<string>("");
+  const [htmlBalanced, setHtmlBalanced] = useState<string>("");
+  const [showBalanced, setShowBalanced] = useState(true);
+  const [cached, setCached]       = useState(false);
+  const [error, setError]         = useState<string>("");
+  const [cost, setCost]           = useState<string>("");
+  const [model, setModel]         = useState("gpt-4.1");
 
   const MODELS = [
     { id: "gpt-4.1",      label: "gpt-4.1  (fast · cheap · good)" },
@@ -30,8 +32,9 @@ export default function Home() {
       try {
         const res = await fetch("/api/brief");
         if (res.ok) {
-          const { brief } = await res.json();
+          const { brief, brief_balanced } = await res.json();
           setHtml(renderEngineer(brief));
+          setHtmlBalanced(renderEngineer(brief_balanced || brief));
           setCached(true);
           addLog("✓ Loaded today's brief from storage.");
           setStatus("done");
@@ -81,6 +84,7 @@ export default function Home() {
             evtSource.close();
             if (msg.brief) {
               setHtml(renderEngineer(msg.brief));
+              setHtmlBalanced(renderEngineer((msg as {brief_balanced?: unknown}).brief_balanced || msg.brief));
               setCached(msg.cached || false);
             }
             const costLine = (msg as {log?: string[]}).log?.find?.((l: string) => l.includes("$0."));
@@ -205,8 +209,43 @@ export default function Home() {
 
       {/* Brief */}
       {html && (
-        <div style={{ border: "1px solid #e8e4e0", borderRadius: 10, overflow: "hidden" }}>
-          <iframe srcDoc={html} style={{ width: "100%", height: "82vh", border: "none" }} title="Daily Brief" />
+        <div>
+          {/* Toggle — only show if both versions exist and differ */}
+          {htmlBalanced && htmlBalanced !== html && (
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+              <button
+                onClick={() => setShowBalanced(false)}
+                style={{
+                  padding: "6px 14px", fontSize: 12, fontWeight: 700,
+                  borderRadius: 6, border: "1.5px solid",
+                  background: !showBalanced ? "#6c5ce7" : "#fff",
+                  color: !showBalanced ? "#fff" : "#6c5ce7",
+                  borderColor: "#6c5ce7", cursor: "pointer"
+                }}
+              >
+                Raw ({model})
+              </button>
+              <button
+                onClick={() => setShowBalanced(true)}
+                style={{
+                  padding: "6px 14px", fontSize: 12, fontWeight: 700,
+                  borderRadius: 6, border: "1.5px solid",
+                  background: showBalanced ? "#6c5ce7" : "#fff",
+                  color: showBalanced ? "#fff" : "#6c5ce7",
+                  borderColor: "#6c5ce7", cursor: "pointer"
+                }}
+              >
+                Balanced
+              </button>
+            </div>
+          )}
+          <div style={{ border: "1px solid #e8e4e0", borderRadius: 10, overflow: "hidden" }}>
+            <iframe
+              srcDoc={showBalanced && htmlBalanced ? htmlBalanced : html}
+              style={{ width: "100%", height: "82vh", border: "none" }}
+              title="Daily Brief"
+            />
+          </div>
         </div>
       )}
     </main>

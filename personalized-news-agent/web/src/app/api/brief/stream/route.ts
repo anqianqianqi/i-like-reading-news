@@ -121,8 +121,9 @@ export async function GET(req: NextRequest) {
           if (exists) {
             log(`✓ Cached brief for ${date} — loading from storage`);
             const brief = await loadJSON(date, "brief_final.json");
+            const brief_balanced = await loadJSON(date, "brief_balanced.json");
             const critique = await loadJSON(date, "critique.json");
-            send("done", { brief, critique, date, cached: true });
+            send("done", { brief, brief_balanced: brief_balanced || brief, critique, date, cached: true });
             controller.close();
             return;
           }
@@ -222,33 +223,35 @@ export async function GET(req: NextRequest) {
           log("Step 4: All stories passed — no rewrites needed.");
         }
 
-        // Step 4.5: Balance
+        // Step 4.5: Balance — save both versions
         log("Step 4.5: Balancing with gpt-4o-mini...");
+        let brief_balanced = brief_final;
         try {
           const { data: balanced } = await openaiCall(apiKey, {
             model: "gpt-4o-mini",
             messages: [
               { role: "system", content: BALANCE_SYSTEM },
-              { role: "user", content: `Balance this brief — trim verbose text without changing facts:\n${JSON.stringify(brief_final)}` }
+              { role: "user", content: `Balance this brief:\n${JSON.stringify(brief_final)}` }
             ],
             max_tokens: 16384,
             response_format: { type: "json_object" }
           });
           if ((balanced as {stories?: unknown}).stories && (balanced as {quick_hits?: unknown}).quick_hits) {
-            brief_final = balanced as typeof brief_final;
-            log("✓ Balanced.");
+            brief_balanced = balanced as typeof brief_final;
+            log("✓ Balanced version created.");
           } else {
-            log("⚠ Balancer output invalid — keeping original.");
+            log("⚠ Balancer output invalid — balanced = raw.");
           }
         } catch (e) {
           log(`⚠ Balancer skipped: ${e instanceof Error ? e.message : "error"}`);
         }
 
         saveJSON(date, "brief_final.json", brief_final).catch(() => {});
+        saveJSON(date, "brief_balanced.json", brief_balanced).catch(() => {});
 
         const cost = ((u1.prompt_tokens+u2.prompt_tokens)*2.5 + (u1.completion_tokens+u2.completion_tokens)*10) / 1_000_000;
         log(`✓ Done · $${cost.toFixed(4)}`);
-        send("done", { brief:brief_final, critique, date, cached:false });
+        send("done", { brief: brief_final, brief_balanced, critique, date, cached: false });
 
       } catch (err:unknown) {
         send("error", err instanceof Error ? err.message : String(err));
