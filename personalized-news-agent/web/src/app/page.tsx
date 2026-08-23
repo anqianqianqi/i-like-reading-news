@@ -35,6 +35,8 @@ export default function Home() {
     { id: "o3",           label: "o3  (reasoning · ~3 min)" },
   ];
 
+  function addLog(msg: string) { setLog(prev => [...prev, msg]); }
+
   function renderForType(data: unknown, type: string): string {
     if (!data) return "";
     if (type === "storyteller") return renderStoryteller(data);
