@@ -1,9 +1,10 @@
 /**
- * storage.ts — Vercel Blob persistence.
- * Uses VERCEL_OIDC_TOKEN (available automatically on Vercel) passed explicitly.
+ * storage.ts — Vercel Blob (private store, OIDC auth).
+ * Requires @vercel/blob >= 2.3.0 for get() and access:'private'.
+ * OIDC authentication is automatic when running on Vercel with BLOB_STORE_ID set.
  */
 
-import { put, head, del, list } from "@vercel/blob";
+import { put, get, del, list } from "@vercel/blob";
 
 export function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
@@ -14,55 +15,38 @@ function blobPath(date: string, filename: string): string {
 }
 
 export function hasBlob(): boolean {
-  return !!(
-    process.env.VERCEL_OIDC_TOKEN ||
-    process.env.BLOB_READ_WRITE_TOKEN ||
-    process.env.BLOB_STORE_ID
-  );
+  return !!(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
 }
 
-function getToken(): string | undefined {
-  return (
-    process.env.VERCEL_OIDC_TOKEN ||
-    process.env.BLOB_READ_WRITE_TOKEN ||
-    undefined
-  );
-}
-
-/** Save JSON to Blob. */
+/** Save JSON to private Blob. */
 export async function saveJSON(date: string, filename: string, data: unknown): Promise<void> {
-  const token = getToken();
-  if (!token) return;
+  if (!hasBlob()) return;
   await put(blobPath(date, filename), JSON.stringify(data), {
-    access: "public",
+    access: "private",
     contentType: "application/json",
     addRandomSuffix: false,
-    token,
   });
 }
 
-/** Save text to Blob. */
+/** Save text to private Blob. */
 export async function saveText(date: string, filename: string, text: string): Promise<void> {
-  const token = getToken();
-  if (!token) return;
+  if (!hasBlob()) return;
   await put(blobPath(date, filename), text, {
-    access: "public",
+    access: "private",
     contentType: "text/plain",
     addRandomSuffix: false,
-    token,
   });
 }
 
-/** Load JSON from Blob. Returns null if not found. */
+/** Load JSON from private Blob. Returns null if not found. */
 export async function loadJSON<T>(date: string, filename: string): Promise<T | null> {
-  const token = getToken();
-  if (!token) return null;
+  if (!hasBlob()) return null;
   try {
-    const info = await head(blobPath(date, filename), { token });
-    if (!info) return null;
-    const res = await fetch(info.url);
-    if (!res.ok) return null;
-    return await res.json() as T;
+    const result = await get(blobPath(date, filename), { access: "private" });
+    if (!result || result.statusCode !== 200) return null;
+    // result.stream is a ReadableStream — read it to text
+    const text = await new Response(result.stream).text();
+    return JSON.parse(text) as T;
   } catch {
     return null;
   }
@@ -70,11 +54,10 @@ export async function loadJSON<T>(date: string, filename: string): Promise<T | n
 
 /** Check if today's final brief exists. */
 export async function todayBriefExists(date: string): Promise<boolean> {
-  const token = getToken();
-  if (!token) return false;
+  if (!hasBlob()) return false;
   try {
-    const info = await head(blobPath(date, "brief_final.json"), { token });
-    return !!info;
+    const result = await get(blobPath(date, "brief_final.json"), { access: "private" });
+    return !!(result && result.statusCode === 200);
   } catch {
     return false;
   }
@@ -82,12 +65,11 @@ export async function todayBriefExists(date: string): Promise<boolean> {
 
 /** Delete all stored files for a date. */
 export async function deleteBrief(date: string): Promise<void> {
-  const token = getToken();
-  if (!token) return;
+  if (!hasBlob()) return;
   try {
-    const { blobs } = await list({ prefix: `briefs/${date}/`, token });
+    const { blobs } = await list({ prefix: `briefs/${date}/` });
     for (const blob of blobs) {
-      await del(blob.url, { token }).catch(() => {});
+      await del(blob.url).catch(() => {});
     }
   } catch {
     // ignore
