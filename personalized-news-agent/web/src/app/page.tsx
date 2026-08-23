@@ -254,7 +254,7 @@ export default function Home() {
             <button
               key={rt.id}
               onClick={() => setReaderType(rt.id)}
-              disabled={busy}
+              disabled={status === "running" || reformatting}
               title={rt.desc}
               style={{
                 padding: "7px 12px", fontSize: 12, fontWeight: 700,
@@ -286,10 +286,10 @@ export default function Home() {
           ))}
         </select>
 
-        <button onClick={previewFixture} disabled={busy} style={{
+        <button onClick={previewFixture} disabled={status === "running"} style={{
           background: "#fff", color: "#6c5ce7", border: "2px solid #6c5ce7",
           borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 700,
-          cursor: busy ? "not-allowed" : "pointer",
+          cursor: status === "running" ? "not-allowed" : "pointer",
         }}>
           Format Saved as {READER_TYPES.find(r => r.id === readerType)?.label.split(" ")[1] || readerType}
         </button>
