@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { renderEngineer } from "@/lib/render";
+import { renderEngineer, renderStoryteller } from "@/lib/render";
 
 type Status = "idle" | "checking" | "loading" | "running" | "done" | "error";
 
@@ -64,7 +64,7 @@ export default function Home() {
     })();
   }, []);
 
-  // Format saved fixture — uses stored JSON, reformats if non-engineer type selected
+  // Format saved fixture — uses stored JSON, renders client-side (no API)
   async function previewFixture() {
     setStatus("loading");
     setLog([`Loading saved fixture (Aug 22, 2026) as ${readerType}...`]);
@@ -75,35 +75,19 @@ export default function Home() {
       const { data } = await res.json();
       addLog(`✓ Loaded ${data.stories.length} stories`);
 
-      if (readerType === "engineer") {
-        // Engineer — render directly, no API call
-        setHtml(renderEngineer(data));
-        setHtmlBalanced(renderEngineer(data));
-        addLog("✓ Formatted as Engineer.");
-      } else if (readerType === "visualizer" || readerType === "actor") {
-        setError(`${readerType} reader type coming soon!`);
+      const rendered = readerType === "storyteller"
+        ? renderStoryteller(data)
+        : renderEngineer(data);
+
+      if (readerType === "visualizer" || readerType === "actor") {
+        setError(`${readerType} coming soon!`);
         setStatus("idle");
         return;
-      } else {
-        // Storyteller (or future types) — call reformat API
-        addLog(`Reformatting as ${readerType} via OpenAI...`);
-        // Temporarily save fixture as brief_final so reformat can load it
-        // Actually: pass the data directly to the reformat endpoint
-        const reformatRes = await fetch("/api/brief/reformat-fixture", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ readerType, brief: data })
-        });
-        if (!reformatRes.ok) {
-          const err = await reformatRes.json();
-          throw new Error(err.error || "Reformat failed");
-        }
-        const { brief: reformatted, cost: c } = await reformatRes.json();
-        addLog(`✓ Reformatted as ${readerType} (~$${c})`);
-        setHtmlBalanced(renderEngineer(reformatted));
-        setHtml(renderEngineer(data));  // keep engineer as "raw"
-        setShowBalanced(true);
       }
+
+      setHtml(rendered);
+      setHtmlBalanced(rendered);
+      addLog(`✓ Formatted as ${readerType} — no API call needed.`);
       setStatus("done");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
@@ -195,8 +179,9 @@ export default function Home() {
           } else if (msg.type === "done") {
             evtSource.close();
             if (msg.brief) {
-              setHtml(renderEngineer(msg.brief));
-              setHtmlBalanced(renderEngineer((msg as {brief_balanced?: unknown}).brief_balanced || msg.brief));
+              const renderFn = readerType === "storyteller" ? renderStoryteller : renderEngineer;
+              setHtml(renderFn(msg.brief));
+              setHtmlBalanced(renderFn((msg as {brief_balanced?: unknown}).brief_balanced || msg.brief));
               setHasRaw(true);
               setCached(msg.cached || false);
             }

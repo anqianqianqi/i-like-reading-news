@@ -438,3 +438,341 @@ export function renderEngineer(data: any): string {
 <body>${body}</body>
 </html>`;
 }
+
+// ── Storyteller Renderer ───────────────────────────────────────────────────
+// Same JSON, different visual treatment:
+// - No arrow chains — mechanism steps shown as flowing prose paragraphs
+// - Warmer, softer typography
+// - so_what framed as "why this matters" not investment bullets
+// - Bigger type, more breathing room
+
+const STORYTELLER_CSS = `
+:root{--bg:#fffdf9;--card:#fff;--a:#d97706;--al:#fef3c7;--text:#1c1917;
+--m:#78716c;--bd:#e7e5e4;--sh:0 2px 12px rgba(0,0,0,.06);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
+font-size:16px;line-height:1.8;padding-bottom:60px;}
+.hero{background:linear-gradient(135deg,#fffdf9,#fef3c7);
+border-bottom:2px solid var(--bd);padding:28px 32px 18px;}
+.hero h1{font-size:1.6rem;font-weight:700;margin-bottom:4px;font-family:Georgia,serif;}
+.date{font-size:11px;color:var(--m);font-weight:600;letter-spacing:.5px;
+text-transform:uppercase;margin-bottom:8px;font-family:system-ui,sans-serif;}
+.srcs{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
+.src{background:var(--card);border:1px solid var(--bd);border-radius:10px;
+padding:2px 9px;font-size:11px;color:var(--m);font-family:system-ui,sans-serif;}
+.sec{margin-top:32px;max-width:680px;margin-left:auto;margin-right:auto;padding:0 24px;}
+.story-num{color:var(--a);font-size:11px;font-weight:700;text-transform:uppercase;
+letter-spacing:.8px;display:block;margin-bottom:6px;font-family:system-ui,sans-serif;}
+.story-title{font-size:1.2rem;font-weight:700;margin-bottom:16px;line-height:1.4;}
+.story-body{background:var(--card);border:1px solid var(--bd);border-radius:12px;
+padding:20px 24px;box-shadow:var(--sh);}
+.story-what{font-size:16px;line-height:1.8;margin-bottom:14px;}
+.story-why{background:#fef3c7;border-left:3px solid var(--a);
+border-radius:0 8px 8px 0;padding:12px 16px;font-size:15px;
+line-height:1.75;margin-bottom:14px;font-style:italic;}
+.story-why-label{font-style:normal;font-size:10px;font-weight:700;
+text-transform:uppercase;letter-spacing:.6px;color:var(--a);
+display:block;margin-bottom:4px;font-family:system-ui,sans-serif;}
+.story-sowhat{margin-top:14px;padding-top:14px;border-top:1px solid var(--bd);}
+.story-sowhat-label{font-size:10px;font-weight:700;text-transform:uppercase;
+letter-spacing:.6px;color:var(--m);display:block;margin-bottom:8px;
+font-family:system-ui,sans-serif;}
+.story-sowhat p{font-size:15px;line-height:1.7;margin-bottom:8px;}
+.story-sowhat p:last-child{margin-bottom:0;}
+.mkts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.mkt{background:var(--card);border:1px solid var(--bd);border-radius:8px;
+padding:8px 10px;text-align:center;}
+.mn{font-size:9px;color:var(--m);font-weight:700;text-transform:uppercase;
+font-family:system-ui,sans-serif;}
+.mv{font-size:.95rem;font-weight:700;font-family:system-ui,sans-serif;}
+.mc{font-size:10px;font-weight:600;font-family:system-ui,sans-serif;}
+.up{color:#059669;} .dn{color:#dc2626;}
+.mkt-note{background:#fef3c7;border-left:3px solid var(--a);
+border-radius:0 8px 8px 0;padding:10px 14px;font-size:14px;margin-top:8px;}
+.hits-section{margin-top:32px;max-width:680px;margin-left:auto;
+margin-right:auto;padding:0 24px;}
+.hits-title{font-size:1rem;font-weight:700;margin-bottom:14px;
+border-bottom:1.5px solid var(--bd);padding-bottom:8px;
+font-family:system-ui,sans-serif;}
+.hit{font-size:14px;line-height:1.6;margin-bottom:8px;
+padding-bottom:8px;border-bottom:1px solid #f5f5f4;}
+.hit:last-child{border-bottom:none;}
+.hit-topic{font-weight:700;font-family:system-ui,sans-serif;}
+footer{margin-top:32px;text-align:center;color:var(--m);font-size:11px;
+padding:14px;border-top:1px solid var(--bd);font-family:system-ui,sans-serif;}
+@media(max-width:560px){.hero{padding:18px 16px 14px;}
+.sec,.hits-section{padding:0 12px;}.mkts{grid-template-columns:repeat(2,1fr);}}
+`;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function renderStoryteller(data: any): string {
+  const today = data.date || new Date().toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+  const markets = data.markets || {};
+  const sections: string[] = [];
+
+  // Hero
+  sections.push(`
+<div class="hero">
+  <div class="date">${today.toUpperCase()}</div>
+  <h1>Anqi's Daily Brief</h1>
+  <p style="color:#78716c;font-size:13px;margin-top:4px;font-family:system-ui,sans-serif;">
+    Today's news, told as stories
+  </p>
+  <div class="srcs">
+    <span class="src">Morning Brew</span><span class="src">CNBC</span>
+    <span class="src">Reuters</span><span class="src">TLDR</span>
+    <span class="src">Rundown AI</span><span class="src">IT Brew</span><span class="src">SA</span>
+  </div>
+</div>`);
+
+  // Markets — simpler, prose-style
+  const tickers = (markets.tickers || []).map((t: { label: string; value: string; change: string; direction: string }) => `
+    <div class="mkt">
+      <div class="mn">${esc(t.label)}</div>
+      <div class="mv ${t.direction === "neutral" ? "" : t.direction}">${esc(t.value)}</div>
+      <div class="mc ${t.direction === "neutral" ? "" : t.direction}">${esc(t.change)}</div>
+    </div>`).join("");
+
+  sections.push(`
+<div class="sec">
+  <span class="story-num">The Market Picture</span>
+  <div class="mkts">${tickers}</div>
+  <div class="mkt-note">${esc(markets.key_mechanism || "")} — ${esc(markets.week_ahead || "")}</div>
+</div>`);
+
+  // Stories — narrative layout
+  (data.stories || []).forEach((story: {
+    title: string;
+    what: string;
+    mechanism: { label: string; steps?: { text: string; type: string }[]; chain?: string }[];
+    so_what: string[];
+    highlights: { text: string; type: string }[];
+  }, i: number) => {
+    const hl = story.highlights || [];
+
+    function process(text: string): string {
+      return applyHighlights(esc(text), hl);
+    }
+
+    // Flatten mechanism into readable prose: join all step texts with ", then "
+    const allSteps: string[] = [];
+    (story.mechanism || []).forEach(chain => {
+      (chain.steps || []).forEach(step => allSteps.push(step.text));
+    });
+    const mechanismProse = allSteps.length > 0
+      ? allSteps.join(" — ")
+      : (story.mechanism?.[0] as { chain?: string })?.chain || "";
+
+    // so_what as paragraphs
+    const sowhatParas = (story.so_what || [])
+      .map(b => `<p>${process(b)}</p>`)
+      .join("\n");
+
+    sections.push(`
+<div class="sec">
+  <span class="story-num">Story ${i + 1}</span>
+  <div class="story-title">${esc(story.title)}</div>
+  <div class="story-body">
+    <div class="story-what">${process(story.what)}</div>
+    ${mechanismProse ? `
+    <div class="story-why">
+      <span class="story-why-label">Why it happened</span>
+      ${process(mechanismProse)}
+    </div>` : ""}
+    <div class="story-sowhat">
+      <span class="story-sowhat-label">Why it matters</span>
+      ${sowhatParas}
+    </div>
+  </div>
+</div>`);
+  });
+
+  // Quick hits — clean prose list
+  const hitsHtml = (data.quick_hits || []).map((h: { topic: string; detail: string }) =>
+    `<div class="hit"><span class="hit-topic">${esc(h.topic)}:</span> ${esc(h.detail)}</div>`
+  ).join("\n");
+
+  sections.push(`
+<div class="hits-section">
+  <div class="hits-title">Also today...</div>
+  ${hitsHtml}
+</div>`);
+
+  sections.push(`
+<footer>
+  Sources: Morning Brew · CNBC · Reuters · TLDR · Rundown AI · IT Brew · Seeking Alpha<br/>
+  Storyteller format · ${today}
+</footer>`);
+
+  const body = sections.join("\n");
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Anqi's Daily Brief — ${today}</title>
+<style>${STORYTELLER_CSS}</style>
+</head>
+<body>${body}</body>
+</html>`;
+}
+
+// ── Storyteller CSS (warmer, more editorial) ──────────────────────────────
+const CSS_STORYTELLER = `
+:root{--bg:#fffef9;--card:#fff;--a:#d97706;--al:#fef3c7;--text:#1c1917;
+--m:#78716c;--bd:#e7e5e4;--sh:0 2px 8px rgba(0,0,0,.04);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
+font-size:15px;line-height:1.75;padding-bottom:60px;}
+a{color:var(--a);}
+.hero{background:linear-gradient(135deg,#fffef9,#fef3c7);
+border-bottom:2px solid var(--bd);padding:28px 32px 16px;}
+.hero h1{font-size:1.6rem;font-weight:700;margin-bottom:4px;font-family:Georgia,serif;}
+.date{font-size:11px;color:var(--m);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
+.sec{margin-top:32px;max-width:700px;margin-left:auto;margin-right:auto;padding:0 24px;}
+.story-title{font-size:1.15rem;font-weight:700;margin-bottom:8px;
+border-bottom:2px solid var(--a);padding-bottom:6px;font-family:Georgia,serif;}
+.story{margin-bottom:8px;}
+.narrative{font-size:15px;line-height:1.8;margin-bottom:14px;color:var(--text);}
+.why-prose{background:var(--al);border-left:3px solid var(--a);
+border-radius:0 6px 6px 0;padding:10px 14px;font-size:14px;
+line-height:1.75;margin-bottom:10px;font-style:italic;}
+.so-what-st{border-top:1px solid var(--bd);padding-top:10px;margin-top:10px;}
+.so-what-label{font-size:10px;font-weight:700;text-transform:uppercase;
+letter-spacing:.6px;color:var(--a);margin-bottom:6px;display:block;}
+.so-what-item{font-size:13px;line-height:1.6;margin-bottom:5px;
+padding-left:12px;border-left:2px solid var(--a);}
+.mkts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
+.mkt{background:var(--card);border:1px solid var(--bd);border-radius:8px;
+padding:8px 10px;text-align:center;}
+.mn{font-size:9px;color:var(--m);font-weight:700;text-transform:uppercase;}
+.mv{font-size:.95rem;font-weight:700;} .mc{font-size:10px;}
+.up{color:#16a34a;} .dn{color:#dc2626;}
+.note{background:var(--al);border-left:3px solid var(--a);
+border-radius:0 6px 6px 0;padding:8px 12px;font-size:14px;margin-top:8px;}
+.hits{margin-top:24px;}
+.hits ul{padding-left:0;list-style:none;}
+.hits li{font-size:13px;line-height:1.6;margin-bottom:8px;
+padding-left:16px;position:relative;}
+.hits li::before{content:"—";position:absolute;left:0;color:var(--a);}
+footer{margin-top:32px;text-align:center;color:var(--m);font-size:11px;
+padding:12px;border-top:1px solid var(--bd);}
+@media(max-width:560px){.hero{padding:16px;}.sec{padding:0 12px;}
+.mkts{grid-template-columns:repeat(2,1fr);}}
+`;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function renderStoryteller(data: any): string {
+  const today = data.date || new Date().toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+  const markets = data.markets || {};
+  const sections: string[] = [];
+
+  // Hero
+  sections.push(`
+<div class="hero">
+  <div class="date">${today.toUpperCase()}</div>
+  <h1>Today's Stories</h1>
+  <p style="color:#78716c;font-size:13px;margin-top:4px;font-family:system-ui,sans-serif;">
+    What happened, why it matters, what it means for you
+  </p>
+</div>`);
+
+  // Markets — simpler summary for storyteller
+  const tickers = (markets.tickers || []).map((t: { label: string; value: string; change: string; direction: string }) => `
+    <div class="mkt">
+      <div class="mn">${esc(t.label)}</div>
+      <div class="mv ${t.direction === "neutral" ? "" : t.direction}">${esc(t.value)}</div>
+      <div class="mc ${t.direction === "neutral" ? "" : t.direction}">${esc(t.change)}</div>
+    </div>`).join("");
+
+  sections.push(`
+<div class="sec">
+  <div class="story-title">The Market Picture</div>
+  <div class="mkts">${tickers}</div>
+  <div class="note">${esc(markets.key_mechanism || "")} — <em>${esc(markets.week_ahead || "")}</em></div>
+</div>`);
+
+  // Stories
+  (data.stories || []).forEach((story: {
+    title: string;
+    narrative?: string;
+    what: string;
+    narrative_why?: string;
+    so_what: string[];
+    price_moves?: { ticker: string; company: string; direction: string; magnitude: string; reason: string }[];
+    highlights: { text: string; type: string }[];
+  }, i: number) => {
+    const hl = story.highlights || [];
+    const narrativeText = story.narrative || story.what;
+    const whyText = story.narrative_why || "";
+
+    function processNarrative(text: string): string {
+      return applyHighlights(esc(text), hl);
+    }
+
+    const soWhatItems = (story.so_what || []).map(b =>
+      `<div class="so-what-item">${processNarrative(b)}</div>`
+    ).join("");
+
+    // Price moves — keep the same compact cards
+    const DIR_CLS: Record<string, string> = { up: "pm-up", dn: "pm-dn", watch: "pm-watch" };
+    const DIR_SYM: Record<string, string> = { up: "↑", dn: "↓", watch: "watch" };
+    let movesHtml = "";
+    if (story.price_moves?.length) {
+      const cards = story.price_moves.map((m: { ticker: string; company: string; direction: string; magnitude: string; reason: string }) => {
+        const dc = DIR_CLS[m.direction] || "pm-watch";
+        const sym = DIR_SYM[m.direction] || "watch";
+        const magStr = m.magnitude ? `<span class="pm-mag">${esc(m.magnitude)}</span>` : `<span class="pm-mag">${sym}</span>`;
+        const company = m.company ? `<span class="pm-sep">/</span><span class="pm-company">${esc(m.company)}</span>` : "";
+        const why = m.reason ? `<span class="pm-why">${esc(m.reason)}</span>` : "";
+        return `<div class="pm ${dc}" style="font-family:system-ui,sans-serif;font-size:12px;"><span class="pm-tick">${esc(m.ticker)}</span>${company} ${magStr} ${why}</div>`;
+      }).join("");
+      movesHtml = `<div class="pmoves" style="margin:10px 0;">${cards}</div>`;
+    }
+
+    sections.push(`
+<div class="sec">
+  <div class="story-title">${i + 1}. ${esc(story.title)}</div>
+  <div class="story">
+    <p class="narrative">${processNarrative(narrativeText)}</p>
+    ${whyText ? `<div class="why-prose">${processNarrative(whyText)}</div>` : ""}
+    ${movesHtml}
+    <div class="so-what-st">
+      <span class="so-what-label">Why it matters</span>
+      ${soWhatItems}
+    </div>
+  </div>
+</div>`);
+  });
+
+  // Quick hits — conversational list
+  const hitsHtml = (data.quick_hits || []).map((h: { topic: string; detail: string }) =>
+    `<li><strong>${esc(h.topic)}:</strong> ${esc(h.detail)}</li>`
+  ).join("\n    ");
+
+  sections.push(`
+<div class="sec hits">
+  <div class="story-title">Also today</div>
+  <ul>
+    ${hitsHtml}
+  </ul>
+</div>`);
+
+  sections.push(`
+<footer style="max-width:700px;margin:0 auto;">
+  Sources: Morning Brew · CNBC · Reuters · TLDR · Rundown AI · IT Brew · Seeking Alpha<br/>
+  Storyteller format · ${today}
+</footer>`);
+
+  const body = sections.join("\n");
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Today's Stories — ${today}</title>
+<style>${CSS_STORYTELLER}</style>
+</head>
+<body>${body}</body>
+</html>`;
+}

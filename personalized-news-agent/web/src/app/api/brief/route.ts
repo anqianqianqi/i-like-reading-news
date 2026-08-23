@@ -161,6 +161,7 @@ const BRIEF_SCHEMA = {
           title:   { type: "string" },
           sources: { type: "array", items: { type: "string" } },
           what:    { type: "string" },
+          narrative: { type: "string", description: "Storyteller version of 'what'. Lead with the human angle — who did what, what was at stake. Write like a good news article opening: characters, drama, stakes. Include key facts in narrative form. 2-3 sentences." },
           mechanism: {
             type: "array",
             items: {
@@ -185,6 +186,7 @@ const BRIEF_SCHEMA = {
             }
           },
           so_what:        { type: "array", items: { type: "string" }, minItems: 2, maxItems: 3 },
+          narrative_why:  { type: "string", description: "Storyteller version of the mechanism. Explain in plain connected prose — no arrows, no step labels. Use analogies. 2-3 sentences a curious non-expert would find satisfying." },
           price_moves: {
             type: "array",
             items: {
@@ -218,7 +220,7 @@ const BRIEF_SCHEMA = {
             }
           }
         },
-        required: ["title","sources","what","mechanism","so_what","price_moves","glossary_terms","highlights"],
+        required: ["title","sources","what","narrative","mechanism","narrative_why","so_what","price_moves","glossary_terms","highlights"],
         additionalProperties: false
       }
     },
