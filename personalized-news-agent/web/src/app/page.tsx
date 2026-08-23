@@ -291,7 +291,7 @@ export default function Home() {
           borderRadius: 8, padding: "9px 18px", fontSize: 13, fontWeight: 700,
           cursor: busy ? "not-allowed" : "pointer",
         }}>
-          Format Saved (Aug 22)
+          Format Saved as {READER_TYPES.find(r => r.id === readerType)?.label.split(" ")[1] || readerType}
         </button>
 
         {status === "done" && cached ? (
