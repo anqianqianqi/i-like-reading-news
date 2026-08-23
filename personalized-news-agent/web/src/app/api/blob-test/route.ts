@@ -20,11 +20,14 @@ export async function GET() {
   let readResult = "not attempted";
   let deleteResult = "not attempted";
 
+  const token = process.env.VERCEL_OIDC_TOKEN || process.env.BLOB_READ_WRITE_TOKEN;
+
   try {
     const blob = await put(testPath, JSON.stringify({ test: true, ts: Date.now() }), {
       access: "public",
       contentType: "application/json",
       addRandomSuffix: false,
+      token: token || undefined,
     });
     writeResult = `success — url: ${blob.url}`;
 

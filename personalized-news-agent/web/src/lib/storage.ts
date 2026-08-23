@@ -1,7 +1,6 @@
 /**
  * storage.ts — Vercel Blob persistence.
- * Uses @vercel/blob SDK with access:'public' (news data is not sensitive).
- * OIDC auth via BLOB_STORE_ID when running on Vercel.
+ * Uses VERCEL_OIDC_TOKEN (available automatically on Vercel) passed explicitly.
  */
 
 import { put, head, del, list } from "@vercel/blob";
@@ -15,34 +14,51 @@ function blobPath(date: string, filename: string): string {
 }
 
 export function hasBlob(): boolean {
-  return !!(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
+  return !!(
+    process.env.VERCEL_OIDC_TOKEN ||
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    process.env.BLOB_STORE_ID
+  );
+}
+
+function getToken(): string | undefined {
+  return (
+    process.env.VERCEL_OIDC_TOKEN ||
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    undefined
+  );
 }
 
 /** Save JSON to Blob. */
 export async function saveJSON(date: string, filename: string, data: unknown): Promise<void> {
-  if (!hasBlob()) return;
+  const token = getToken();
+  if (!token) return;
   await put(blobPath(date, filename), JSON.stringify(data), {
     access: "public",
     contentType: "application/json",
     addRandomSuffix: false,
+    token,
   });
 }
 
 /** Save text to Blob. */
 export async function saveText(date: string, filename: string, text: string): Promise<void> {
-  if (!hasBlob()) return;
+  const token = getToken();
+  if (!token) return;
   await put(blobPath(date, filename), text, {
     access: "public",
     contentType: "text/plain",
     addRandomSuffix: false,
+    token,
   });
 }
 
 /** Load JSON from Blob. Returns null if not found. */
 export async function loadJSON<T>(date: string, filename: string): Promise<T | null> {
-  if (!hasBlob()) return null;
+  const token = getToken();
+  if (!token) return null;
   try {
-    const info = await head(blobPath(date, filename));
+    const info = await head(blobPath(date, filename), { token });
     if (!info) return null;
     const res = await fetch(info.url);
     if (!res.ok) return null;
@@ -54,9 +70,10 @@ export async function loadJSON<T>(date: string, filename: string): Promise<T | n
 
 /** Check if today's final brief exists. */
 export async function todayBriefExists(date: string): Promise<boolean> {
-  if (!hasBlob()) return false;
+  const token = getToken();
+  if (!token) return false;
   try {
-    const info = await head(blobPath(date, "brief_final.json"));
+    const info = await head(blobPath(date, "brief_final.json"), { token });
     return !!info;
   } catch {
     return false;
@@ -65,11 +82,12 @@ export async function todayBriefExists(date: string): Promise<boolean> {
 
 /** Delete all stored files for a date. */
 export async function deleteBrief(date: string): Promise<void> {
-  if (!hasBlob()) return;
+  const token = getToken();
+  if (!token) return;
   try {
-    const { blobs } = await list({ prefix: `briefs/${date}/` });
+    const { blobs } = await list({ prefix: `briefs/${date}/`, token });
     for (const blob of blobs) {
-      await del(blob.url).catch(() => {});
+      await del(blob.url, { token }).catch(() => {});
     }
   } catch {
     // ignore
