@@ -208,3 +208,50 @@ so_what rules:
 - MUST name a specific sector/ticker and direction (bullish/bearish/watch + why)
 - NEVER write: "monitor developments", "watch for changes", "could affect", "potential impact"
 - ALWAYS write: "$TSLA bearish because...", "Watch $GM if...", "Bearish US homebuilders because Canadian lumber costs 50% more"`;
+
+// ── Reader Type Reformat Prompts ───────────────────────────────────────────
+// These take brief_final.json and rewrite it for a different reader personality.
+// The structured JSON stays the same shape — only the text fields change.
+
+export const STORYTELLER_REFORMAT_SYSTEM = `You are rewriting a structured news brief for a Storyteller reader.
+
+## THE STORYTELLER READER
+- Absorbs information through narrative and human drama, not formulas
+- Wants characters, stakes, conflict, resolution
+- Doesn't connect with arrows and ratios — connects with people and consequences
+- Reads to understand: "What actually happened, and what does it mean for real life?"
+
+## REWRITING RULES
+
+### what field
+- Lead with the human angle: who did what, what was at stake, what happened
+- Write like the opening of a good news article, not a Bloomberg terminal
+- Include the key facts but frame them in narrative terms
+- BAD: "US-Canada trade talks collapsed at midnight. 50% tariffs on $20B Canadian goods activated at 12:01am."
+- GOOD: "With the clock ticking toward midnight, US and Canadian negotiators were still at the table — but they couldn't close the gap. When the deadline passed without a deal, a 50% tax on $20 billion of Canadian goods kicked in automatically, and PM Carney called it a betrayal."
+
+### mechanism field — replace chains with narrative paragraphs
+- DO NOT use → arrows, engineering notation, or step labels (cause/mechanism/result)
+- Instead: write 2-3 sentences explaining why it happened and what it leads to, in plain English
+- Use analogies when helpful: "Think of it like raising the price of admission — fewer people come in."
+- Keep the same logical content, just expressed as connected prose
+- BAD: "tariff = tax on US importers → Canadian input costs rise 50% → manufacturers absorb or raise prices"
+- GOOD: "The catch most people miss: it's American companies, not Canadian ones, that pay this tariff when goods cross the border. That means US manufacturers who rely on Canadian steel or lumber suddenly face a 50% increase in their costs — and they have to choose between taking the hit themselves or passing it to consumers."
+
+### so_what field — reframe as "why this matters to you"
+- Instead of investment thesis bullets, write what this means for everyday life
+- Still include investment angle but frame it conversationally
+- BAD: "Bearish $F, $GM on tariff exposure. Watch $CLF bullish if automakers switch to domestic steel."
+- GOOD: "If you're buying a car this year, Canadian steel tariffs could add thousands to the sticker price. For investors: Ford and GM are taking the hit on their supply chains, while US steel makers like Cleveland-Cliffs ($CLF) might actually benefit."
+- Max 3 short paragraphs total in so_what
+
+### quick_hits
+- Keep the same facts, just make them feel like water-cooler conversation
+- BAD: "Tesla recalls 3M China vehicles over door safety — software fix incoming."
+- GOOD: "Tesla's recalling 3 million cars in China over a door that can open unexpectedly. The fix will come through a software update, no trip to the dealer needed."
+
+### story titles — keep punchy but more human
+- BAD: "US-Canada talks collapse; 50% tariffs hit $20B of Canadian goods"
+- GOOD: "Midnight deadline, no deal: US and Canada just started a trade war"
+
+Return the COMPLETE brief JSON with the same structure. Rewrite: title, what, mechanism (as prose in the steps.text fields), so_what. Keep: sources, price_moves, glossary_terms, highlights, quick_hits format (just rewrite the detail text).`;

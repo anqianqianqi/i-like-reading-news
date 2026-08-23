@@ -16,6 +16,15 @@ export default function Home() {
   const [error, setError]               = useState<string>("");
   const [cost, setCost]                 = useState<string>("");
   const [model, setModel]               = useState("gpt-4.1");
+  const [readerType, setReaderType]     = useState("engineer");
+  const [reformatting, setReformatting] = useState(false);
+
+  const READER_TYPES = [
+    { id: "engineer",    label: "🔧 Engineer",    desc: "Causal chains + invest angle" },
+    { id: "storyteller", label: "📖 Storyteller",  desc: "Narrative + human drama" },
+    { id: "visualizer",  label: "🎨 Visualizer",   desc: "Analogies + mental images (coming soon)" },
+    { id: "actor",       label: "🎭 Actor",         desc: "Immersive scene recreation (coming soon)" },
+  ];
 
   const MODELS = [
     { id: "gpt-4.1",      label: "gpt-4.1  (fast · cheap · good)" },
@@ -73,7 +82,44 @@ export default function Home() {
     }
   }
 
-  // Re-balance only — loads raw brief from Blob, runs balancer (~$0.01)
+  // Reformat for a different reader type (loads raw brief, runs reformat pass)
+  async function reformatForType(type: string) {
+    if (type === "engineer") {
+      // Engineer is the default — just show existing html
+      setShowBalanced(true);
+      return;
+    }
+    if (type === "visualizer" || type === "actor") {
+      setError(`${type} reader type coming soon!`);
+      return;
+    }
+    setReformatting(true);
+    setError("");
+    addLog(`Reformatting for ${type} reader type...`);
+    try {
+      const res = await fetch("/api/brief/reformat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ readerType: type })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        if (err.needs_pipeline) setError("Run full pipeline first to generate raw brief.");
+        else setError(err.error || "Reformat failed");
+        setReformatting(false);
+        return;
+      }
+      const { brief, cost: c } = await res.json();
+      addLog(`✓ Reformatted for ${type} (~$${c})`);
+      // Render the reformatted brief using the engineer renderer as base
+      // (storyteller rewrites the text fields, same structure)
+      setHtmlBalanced(renderEngineer(brief));
+      setShowBalanced(true);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+    setReformatting(false);
+  }
   async function reBalance() {
     setStatus("running");
     setLog(["Re-balancing from stored raw brief..."]);
@@ -173,7 +219,29 @@ export default function Home() {
       {/* Controls */}
       <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
 
-        {/* Model selector */}
+        {/* Reader type selector */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
+          {READER_TYPES.map(rt => (
+            <button
+              key={rt.id}
+              onClick={() => { setReaderType(rt.id); reformatForType(rt.id); }}
+              disabled={busy || reformatting || !hasRaw && rt.id !== "engineer"}
+              title={rt.desc}
+              style={{
+                padding: "7px 12px", fontSize: 12, fontWeight: 700,
+                borderRadius: 7, border: "1.5px solid",
+                background: readerType === rt.id ? "#6c5ce7" : "#fff",
+                color: readerType === rt.id ? "#fff" : ((!hasRaw && rt.id !== "engineer") ? "#b2bec3" : "#6c5ce7"),
+                borderColor: readerType === rt.id ? "#6c5ce7" : ((!hasRaw && rt.id !== "engineer") ? "#dfe6e9" : "#6c5ce7"),
+                cursor: (busy || reformatting || (!hasRaw && rt.id !== "engineer")) ? "not-allowed" : "pointer",
+                opacity: (rt.id === "visualizer" || rt.id === "actor") ? 0.5 : 1,
+              }}
+            >
+              {rt.label}
+            </button>
+          ))}
+          {reformatting && <span style={{ fontSize: 11, color: "#636e72", alignSelf: "center" }}>Reformatting...</span>}
+        </div>
         <select
           value={model}
           onChange={e => setModel(e.target.value)}
