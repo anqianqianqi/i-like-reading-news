@@ -253,7 +253,7 @@ export default function Home() {
           {READER_TYPES.map(rt => (
             <button
               key={rt.id}
-              onClick={() => { setReaderType(rt.id); reformatForType(rt.id); }}
+              onClick={() => setReaderType(rt.id)}
               disabled={busy || reformatting || !hasRaw && rt.id !== "engineer"}
               title={rt.desc}
               style={{
