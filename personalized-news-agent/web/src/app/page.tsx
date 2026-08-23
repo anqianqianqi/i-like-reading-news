@@ -254,15 +254,15 @@ export default function Home() {
             <button
               key={rt.id}
               onClick={() => setReaderType(rt.id)}
-              disabled={busy || reformatting || !hasRaw && rt.id !== "engineer"}
+              disabled={busy}
               title={rt.desc}
               style={{
                 padding: "7px 12px", fontSize: 12, fontWeight: 700,
                 borderRadius: 7, border: "1.5px solid",
                 background: readerType === rt.id ? "#6c5ce7" : "#fff",
-                color: readerType === rt.id ? "#fff" : ((!hasRaw && rt.id !== "engineer") ? "#b2bec3" : "#6c5ce7"),
-                borderColor: readerType === rt.id ? "#6c5ce7" : ((!hasRaw && rt.id !== "engineer") ? "#dfe6e9" : "#6c5ce7"),
-                cursor: (busy || reformatting || (!hasRaw && rt.id !== "engineer")) ? "not-allowed" : "pointer",
+                color: readerType === rt.id ? "#fff" : (rt.id === "visualizer" || rt.id === "actor" ? "#b2bec3" : "#6c5ce7"),
+                borderColor: readerType === rt.id ? "#6c5ce7" : (rt.id === "visualizer" || rt.id === "actor" ? "#dfe6e9" : "#6c5ce7"),
+                cursor: busy ? "not-allowed" : "pointer",
                 opacity: (rt.id === "visualizer" || rt.id === "actor") ? 0.5 : 1,
               }}
             >
