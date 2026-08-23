@@ -1,15 +1,13 @@
 /**
- * storage.ts — Vercel Blob (private store, OIDC auth).
- *
- * put() with access:'private' to write.
- * head() to check existence, then fetch with OIDC/token to read.
- * Falls back gracefully if BLOB_STORE_ID is missing.
+ * storage.ts — Vercel Blob persistence.
+ * Uses @vercel/blob SDK with access:'public' (news data is not sensitive).
+ * OIDC auth via BLOB_STORE_ID when running on Vercel.
  */
 
 import { put, head, del, list } from "@vercel/blob";
 
 export function todayKey(): string {
-  return new Date().toISOString().slice(0, 10); // "2026-08-22"
+  return new Date().toISOString().slice(0, 10);
 }
 
 function blobPath(date: string, filename: string): string {
@@ -20,39 +18,33 @@ export function hasBlob(): boolean {
   return !!(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
 }
 
-
-/** Save a JSON object to private Blob. */
+/** Save JSON to Blob. */
 export async function saveJSON(date: string, filename: string, data: unknown): Promise<void> {
   if (!hasBlob()) return;
-  const path = blobPath(date, filename);
-  await put(path, JSON.stringify(data), {
+  await put(blobPath(date, filename), JSON.stringify(data), {
     access: "public",
     contentType: "application/json",
     addRandomSuffix: false,
   });
 }
 
-/** Save raw text to private Blob. */
+/** Save text to Blob. */
 export async function saveText(date: string, filename: string, text: string): Promise<void> {
   if (!hasBlob()) return;
-  const path = blobPath(date, filename);
-  await put(path, text, {
+  await put(blobPath(date, filename), text, {
     access: "public",
     contentType: "text/plain",
     addRandomSuffix: false,
   });
 }
 
-/** Load a JSON object from private Blob. Returns null if not found. */
+/** Load JSON from Blob. Returns null if not found. */
 export async function loadJSON<T>(date: string, filename: string): Promise<T | null> {
   if (!hasBlob()) return null;
   try {
-    const path = blobPath(date, filename);
-    // head() returns blob info including the private URL
-    const info = await head(path);
+    const info = await head(blobPath(date, filename));
     if (!info) return null;
-    // Fetch the private URL with auth header
-    const res = await fetch(info.url, { // public blob, no auth needed });
+    const res = await fetch(info.url);
     if (!res.ok) return null;
     return await res.json() as T;
   } catch {
@@ -64,8 +56,7 @@ export async function loadJSON<T>(date: string, filename: string): Promise<T | n
 export async function todayBriefExists(date: string): Promise<boolean> {
   if (!hasBlob()) return false;
   try {
-    const path = blobPath(date, "brief_final.json");
-    const info = await head(path);
+    const info = await head(blobPath(date, "brief_final.json"));
     return !!info;
   } catch {
     return false;
