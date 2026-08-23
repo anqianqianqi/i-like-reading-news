@@ -20,21 +20,13 @@ export function hasBlob(): boolean {
   return !!(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
 }
 
-function authHeader(): Record<string, string> {
-  // Prefer short-lived OIDC token when running on Vercel
-  const oidc = process.env.VERCEL_OIDC_TOKEN;
-  if (oidc) return { Authorization: `Bearer ${oidc}` };
-  const rw = process.env.BLOB_READ_WRITE_TOKEN;
-  if (rw) return { Authorization: `Bearer ${rw}` };
-  return {};
-}
 
 /** Save a JSON object to private Blob. */
 export async function saveJSON(date: string, filename: string, data: unknown): Promise<void> {
   if (!hasBlob()) return;
   const path = blobPath(date, filename);
   await put(path, JSON.stringify(data), {
-    access: "private",
+    access: "public",
     contentType: "application/json",
     addRandomSuffix: false,
   });
@@ -45,7 +37,7 @@ export async function saveText(date: string, filename: string, text: string): Pr
   if (!hasBlob()) return;
   const path = blobPath(date, filename);
   await put(path, text, {
-    access: "private",
+    access: "public",
     contentType: "text/plain",
     addRandomSuffix: false,
   });
@@ -60,7 +52,7 @@ export async function loadJSON<T>(date: string, filename: string): Promise<T | n
     const info = await head(path);
     if (!info) return null;
     // Fetch the private URL with auth header
-    const res = await fetch(info.url, { headers: authHeader() });
+    const res = await fetch(info.url, { // public blob, no auth needed });
     if (!res.ok) return null;
     return await res.json() as T;
   } catch {
