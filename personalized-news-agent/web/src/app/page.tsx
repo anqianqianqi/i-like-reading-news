@@ -64,17 +64,46 @@ export default function Home() {
     })();
   }, []);
 
-  // Format saved fixture — no API call
+  // Format saved fixture — uses stored JSON, reformats if non-engineer type selected
   async function previewFixture() {
     setStatus("loading");
-    setLog(["Loading saved fixture (Aug 22, 2026)..."]);
+    setLog([`Loading saved fixture (Aug 22, 2026) as ${readerType}...`]);
     setHtml(""); setError("");
     try {
       const res = await fetch("/api/fixture");
       if (!res.ok) throw new Error("Fixture not found");
       const { data } = await res.json();
-      setHtml(renderEngineer(data));
-      addLog(`✓ Formatted ${data.stories.length} stories.`);
+      addLog(`✓ Loaded ${data.stories.length} stories`);
+
+      if (readerType === "engineer") {
+        // Engineer — render directly, no API call
+        setHtml(renderEngineer(data));
+        setHtmlBalanced(renderEngineer(data));
+        addLog("✓ Formatted as Engineer.");
+      } else if (readerType === "visualizer" || readerType === "actor") {
+        setError(`${readerType} reader type coming soon!`);
+        setStatus("idle");
+        return;
+      } else {
+        // Storyteller (or future types) — call reformat API
+        addLog(`Reformatting as ${readerType} via OpenAI...`);
+        // Temporarily save fixture as brief_final so reformat can load it
+        // Actually: pass the data directly to the reformat endpoint
+        const reformatRes = await fetch("/api/brief/reformat-fixture", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ readerType, brief: data })
+        });
+        if (!reformatRes.ok) {
+          const err = await reformatRes.json();
+          throw new Error(err.error || "Reformat failed");
+        }
+        const { brief: reformatted, cost: c } = await reformatRes.json();
+        addLog(`✓ Reformatted as ${readerType} (~$${c})`);
+        setHtmlBalanced(renderEngineer(reformatted));
+        setHtml(renderEngineer(data));  // keep engineer as "raw"
+        setShowBalanced(true);
+      }
       setStatus("done");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
