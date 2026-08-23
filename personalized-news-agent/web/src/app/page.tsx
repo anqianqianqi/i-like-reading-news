@@ -8,6 +8,7 @@ type Status = "idle" | "checking" | "loading" | "running" | "done" | "error";
 export default function Home() {
   const [status, setStatus]             = useState<Status>("checking");
   const [log, setLog]                   = useState<string[]>([]);
+  const [briefData, setBriefData]       = useState<unknown>(null);  // raw brief JSON
   const [html, setHtml]                 = useState<string>("");
   const [htmlBalanced, setHtmlBalanced] = useState<string>("");
   const [showBalanced, setShowBalanced] = useState(true);
@@ -34,7 +35,21 @@ export default function Home() {
     { id: "o3",           label: "o3  (reasoning · ~3 min)" },
   ];
 
-  function addLog(msg: string) { setLog(prev => [...prev, msg]); }
+  function renderForType(data: unknown, type: string): string {
+    if (!data) return "";
+    if (type === "storyteller") return renderStoryteller(data);
+    return renderEngineer(data);
+  }
+
+  function switchReaderType(type: string) {
+    setReaderType(type);
+    if (briefData) {
+      const rendered = renderForType(briefData, type);
+      setHtml(rendered);
+      setHtmlBalanced(rendered);
+      setShowBalanced(true);
+    }
+  }
 
   // On mount: check if today's brief already exists in Blob
   useEffect(() => {
@@ -43,6 +58,7 @@ export default function Home() {
         const res = await fetch("/api/brief");
         if (res.ok) {
           const { brief, brief_balanced } = await res.json();
+          setBriefData(brief);
           setHtml(renderEngineer(brief));
           setHtmlBalanced(renderEngineer(brief_balanced || brief));
           setHasRaw(true);
@@ -85,6 +101,7 @@ export default function Home() {
         return;
       }
 
+      setBriefData(data);
       setHtml(rendered);
       setHtmlBalanced(rendered);
       addLog(`✓ Formatted as ${readerType} — no API call needed.`);
@@ -179,6 +196,7 @@ export default function Home() {
           } else if (msg.type === "done") {
             evtSource.close();
             if (msg.brief) {
+              setBriefData(msg.brief);
               const renderFn = readerType === "storyteller" ? renderStoryteller : renderEngineer;
               setHtml(renderFn(msg.brief));
               setHtmlBalanced(renderFn((msg as {brief_balanced?: unknown}).brief_balanced || msg.brief));
@@ -238,7 +256,7 @@ export default function Home() {
           {READER_TYPES.map(rt => (
             <button
               key={rt.id}
-              onClick={() => setReaderType(rt.id)}
+              onClick={() => switchReaderType(rt.id)}
               disabled={status === "running" || reformatting}
               title={rt.desc}
               style={{
