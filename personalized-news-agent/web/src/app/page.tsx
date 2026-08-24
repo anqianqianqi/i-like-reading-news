@@ -100,20 +100,33 @@ export default function Home() {
     })();
   }, []);
 
-  // Format saved fixture — uses stored JSON, renders client-side (no API)
+  // Format saved — loads from Blob if available, falls back to fixture
   async function previewFixture() {
     setStatus("loading");
-    setLog([`Loading saved fixture (Aug 22, 2026) as ${readerType}...`]);
+    setLog([`Loading saved brief as ${readerType}...`]);
     setHtml(""); setError("");
     try {
-      const res = await fetch("/api/fixture");
-      if (!res.ok) throw new Error("Fixture not found");
-      const { data } = await res.json();
-      addLog(`✓ Loaded ${data.stories.length} stories`);
+      // Try Blob first (today's generated brief)
+      const blobRes = await fetch("/api/brief");
+      let data: unknown = null;
+      if (blobRes.ok) {
+        const { brief } = await blobRes.json();
+        data = brief;
+        addLog("✓ Loaded from Blob storage.");
+      } else {
+        // Fall back to static fixture
+        const fixRes = await fetch("/api/fixture");
+        if (!fixRes.ok) throw new Error("No saved brief found. Run the full pipeline first.");
+        const { data: fixData } = await fixRes.json();
+        data = fixData;
+        addLog("✓ Loaded from fixture (Aug 22, 2026).");
+      }
 
-      const rendered = readerType === "storyteller"
-        ? renderStoryteller(data)
-        : renderEngineer(data);
+      if (!data || !(data as {stories?: unknown}).stories) {
+        throw new Error("Invalid brief data.");
+      }
+
+      addLog(`✓ ${(data as {stories: unknown[]}).stories.length} stories loaded`);
 
       if (readerType === "visualizer" || readerType === "actor") {
         setError(`${readerType} coming soon!`);
@@ -121,10 +134,14 @@ export default function Home() {
         return;
       }
 
+      const rendered = readerType === "storyteller"
+        ? renderStoryteller(data)
+        : renderEngineer(data);
+
       setBriefData(data);
       setHtml(rendered);
       setHtmlBalanced(rendered);
-      addLog(`✓ Formatted as ${readerType} — no API call needed.`);
+      addLog(`✓ Formatted as ${readerType}.`);
       setStatus("done");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
