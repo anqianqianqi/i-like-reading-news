@@ -56,7 +56,7 @@ mechanism:
 - mechanism: "Canadian input costs rise 50% for US manufacturers using Canadian materials"
 - result-long: "manufacturers absorb margin hit OR raise prices — consumer inflation gets new input channel"
 so_what:
-- "Tariffs are a domestic tax — US importers pay, not Canada. Affected: US auto assemblers ($F, $GM), homebuilders using Canadian lumber."
+- "Tariffs are a domestic tax — US importers pay, not Canada. Affected: US auto assemblers (Ford, GM), homebuilders using Canadian lumber."
 - "Bearish US manufacturers with Canadian supply chains. If Canada retaliates on ag, watch corn/soybean futures."
 - "Watch Sept 8 — Canada retaliatory tariffs activate on US steel and electronics."
 Why GOOD: specific facts with numbers, mechanism explains WHY each step causes the next, so_what names specific tickers and directions.
@@ -150,8 +150,10 @@ GOOD: "Integrated supply chains → can't swap suppliers fast"
 ### so_what bullets
 - Each bullet delivers one clear investment takeaway: direction + reason + who.
 - Plain English. No jargon unless it's been defined. No abbreviations that lose the meaning.
+- Use company names, not ticker symbols: write "Ford" not "$F", "Nvidia" not "$NVDA", "Tesla" not "$TSLA".
+  Tickers are fine in the price_moves cards — but so_what bullets should be readable without knowing the ticker.
 - BAD: "Bearish $F and $GM because a proposed 50% tariff on Canadian autos raises U.S. landed costs and supply-chain repricing pressure."
-- GOOD: "Ford and GM are bearish — a 50% auto tariff directly raises their Canadian supply-chain costs."
+- GOOD: "Ford and General Motors are bearish — a 50% auto tariff directly raises their Canadian supply-chain costs."
 
 ### Never write these phrases:
 - "the source does not disclose" / "cannot be quantified" / "without further disclosure"
@@ -263,9 +265,10 @@ mechanism rules:
 
 so_what rules:
 - 2-3 bullets, max 20 words each
-- MUST name a specific sector/ticker and direction (bullish/bearish/watch + why)
+- MUST name a specific sector/company and direction (bullish/bearish/watch + why)
+- Use company names not tickers: "Ford" not "$F", "Nvidia" not "$NVDA"
 - NEVER write: "monitor developments", "watch for changes", "could affect", "potential impact"
-- ALWAYS write: "$TSLA bearish because...", "Watch $GM if...", "Bearish US homebuilders because Canadian lumber costs 50% more"`;
+- ALWAYS write: "Tesla is bearish because...", "Watch General Motors if...", "US homebuilders are bearish because Canadian lumber costs 50% more"`;
 
 // ── Reader Type Reformat Prompts ───────────────────────────────────────────
 // These take brief_final.json and rewrite it for a different reader personality.
