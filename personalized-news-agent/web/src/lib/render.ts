@@ -241,15 +241,25 @@ function renderPriceMoves(
   const DIR_SYM: Record<string, string> = { up: "↑", dn: "↓", watch: "~" };
 
   // Normalize direction — LLMs sometimes output variants like "down", "bearish", "negative"
-  function normalizeDir(raw: string): "up" | "dn" | "watch" {
+  // Also catches magnitude hints like "-3.2%" that clearly indicate direction
+  function normalizeDir(raw: string, magnitude?: string, reason?: string): "up" | "dn" | "watch" {
     const d = (raw || "").toLowerCase().trim();
     if (d === "up" || d === "bullish" || d === "positive" || d === "bull" || d === "green") return "up";
     if (d === "dn" || d === "down" || d === "bearish" || d === "negative" || d === "bear" || d === "red") return "dn";
+    // If direction is watch but magnitude starts with - or has explicit bearish signal, infer dn
+    if (d === "watch") {
+      const mag = (magnitude || "").trim();
+      if (mag.startsWith("-") || mag.startsWith("−")) return "dn";
+      if (mag.startsWith("+")) return "up";
+      const rsn = (reason || "").toLowerCase();
+      if (/tariff exposure|cost increase|margin squeeze|supply.chain cost|higher.*tax|import tax|pays more|bearish/.test(rsn)) return "dn";
+      if (/safe haven|hedge|bullish|demand rising|beat|tailwind/.test(rsn)) return "up";
+    }
     return "watch";
   }
 
   const cards = price_moves.map(m => {
-    const dir = normalizeDir(m.direction);
+    const dir = normalizeDir(m.direction, m.magnitude, m.reason);
     const c = DIR_COLORS[dir];
     const sym = DIR_SYM[dir];
     const mag = m.magnitude || sym;

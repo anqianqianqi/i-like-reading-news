@@ -79,7 +79,40 @@ QUICK HIT ONLY — do NOT give these a full story slot:
 - Minor recalls without broader market thesis
 - "Company X names new CFO" — quick hit unless it signals major strategic shift
 
-ANTI-HALLUCINATION — critical:
+## PRICE_MOVES DIRECTION RULES — be decisive, not ambiguous
+
+direction must be one of: "up" (bullish/positive catalyst), "dn" (bearish/negative catalyst), "watch" (genuinely uncertain, catalyst could go either way)
+
+"watch" is NOT the default. Use it only when there is real two-sided uncertainty (e.g. earnings — could beat or miss).
+
+Use "dn" when:
+- Tariff exposure, import cost increase, supply chain cost increase → dn
+- Margin squeeze, input cost rising, company pays more for inputs → dn
+- Competitor threat, losing market share, platform risk → dn
+- Regulatory investigation, fine, legal liability → dn
+- Demand slowdown, revenue guidance cut, earnings miss → dn
+- Sector rotation away from asset class → dn
+
+Use "up" when:
+- Revenue beat, guidance raised, demand exceeding expectations → up
+- Regulatory tailwind, new market opened, competitor weakened → up
+- Safe haven bid, inflation hedge demand rising → up
+- Cost structure advantage over competitors → up
+- New product launch with confirmed demand → up
+
+Use "watch" ONLY when:
+- Earnings report pending (could beat or miss) → watch
+- Deal pending (could close or fall through) → watch
+- Court ruling pending (outcome genuinely unknown) → watch
+- Two-sided macro signal (rate hike = bad for growth stocks but good for banks) → watch
+
+EXAMPLES:
+BAD: direction "watch" for Ford with reason "tariff exposure" — tariff = cost increase = dn, not watch
+GOOD: direction "dn" for Ford with reason "Canadian supply chain costs +50% from tariffs → margin squeeze"
+BAD: direction "watch" for iShares bond ETF when yields spike — that is unambiguously dn
+GOOD: direction "dn" for TLT with reason "30yr yield at 5.33% = bond price falls"
+
+## ANTI-HALLUCINATION — critical:
 - NEVER add companies, lawsuits, or events not explicitly in the source text
 - NEVER infer tickers that might be affected — only include tickers explicitly named in sources
 - If unsure whether something happened today, omit it
