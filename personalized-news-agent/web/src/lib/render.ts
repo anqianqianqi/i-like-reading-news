@@ -484,16 +484,14 @@ border-bottom:2px solid var(--a);padding-bottom:6px;font-family:Georgia,serif;}
 .story{margin-bottom:8px;}
 .narrative{font-size:15px;line-height:1.8;margin-bottom:8px;color:var(--text);}
 .why-block{background:var(--al);border-left:3px solid var(--a);
-border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:10px;}
+border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:10px;
+line-height:2;}
 .why-label{font-style:normal;font-size:10px;font-weight:700;text-transform:uppercase;
 letter-spacing:.6px;color:var(--a);display:block;margin-bottom:8px;
 font-family:system-ui,sans-serif;}
 .why-sentence{font-size:14px;line-height:1.75;font-style:italic;
-margin-bottom:6px;padding-left:10px;border-left:2px solid transparent;}
-.why-sentence:last-child{margin-bottom:0;}
-.wt-backdrop{border-left-color:#d97706;}
-.wt-mechanism{border-left-color:#6c5ce7;}
-.wt-result{border-left-color:#10b981;}
+display:inline;padding-left:0;border-left:none;}
+.wt-backdrop{} .wt-mechanism{} .wt-result{}
 .wt-tag{font-style:normal;font-size:9px;font-weight:700;text-transform:uppercase;
 letter-spacing:.4px;padding:1px 5px;border-radius:3px;margin-right:5px;
 vertical-align:middle;font-family:system-ui,sans-serif;}
@@ -569,7 +567,10 @@ function renderNarrativeWhy(rawText: string): string {
 
     const tag = TAGS[tagIdx];
     const highlighted = autoHL(s);
-    return `<div class="why-sentence ${tag.cls}"><span class="wt-tag ${tag.cls} ${tag.tagCls}">${tag.label}</span>${highlighted}</div>`;
+    const arrow = i > 0
+      ? `<span style="color:#d97706;font-weight:800;margin:0 4px;">→</span>`
+      : "";
+    return `${arrow}<span class="why-sentence ${tag.cls}"><span class="wt-tag ${tag.cls} ${tag.tagCls}">${tag.label}</span>${highlighted}</span>`;
   }).join("\n");
 
   return `<div class="why-block">
