@@ -627,6 +627,7 @@ export function renderStoryteller(data: any): string {
   // Stories
   (data.stories || []).forEach((story: {
     title: string;
+    sources?: string[];
     narrative?: string;
     what: string;
     narrative_why?: string;
