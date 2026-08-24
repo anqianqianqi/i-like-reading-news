@@ -114,7 +114,7 @@ GOOD: direction "dn" for TLT with reason "30yr yield at 5.33% = bond price falls
 
 ## HIGHLIGHTS — mark what matters, based on your reasoning
 
-The `highlights` array tells the renderer what to visually emphasize. Highlight based on causal importance — the facts that, if a reader misses them, they won't understand why the story matters. Not just "this is a number" but "this number is the reason the story is significant."
+The "highlights" array tells the renderer what to visually emphasize. Highlight based on causal importance — the facts that, if a reader misses them, they won't understand why the story matters. Not just "this is a number" but "this number is the reason the story is significant."
 
 Ask yourself: if I could only highlight 5 things so a reader could understand this story at a glance, what would they be? Those are your highlights.
 
