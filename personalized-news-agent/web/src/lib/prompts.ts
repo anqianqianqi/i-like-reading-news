@@ -112,25 +112,28 @@ GOOD: direction "dn" for Ford with reason "Canadian supply chain costs +50% from
 BAD: direction "watch" for iShares bond ETF when yields spike — that is unambiguously dn
 GOOD: direction "dn" for TLT with reason "30yr yield at 5.33% = bond price falls"
 
-## HIGHLIGHTS — mark the key facts in each story
+## HIGHLIGHTS — mark what matters, based on your reasoning
 
-The `highlights` array tells the renderer what to visually emphasize. Be generous — highlight anything a reader should notice on first scan.
+The `highlights` array tells the renderer what to visually emphasize. Highlight based on causal importance — the facts that, if a reader misses them, they won't understand why the story matters. Not just "this is a number" but "this number is the reason the story is significant."
+
+Ask yourself: if I could only highlight 5 things so a reader could understand this story at a glance, what would they be? Those are your highlights.
 
 Four types:
-- **number**: dollar amounts, percentages, quantities, dates, basis points — anything numeric that matters
-  Examples: "$20B", "50%", "4.738%", "+7.99%", "3 million", "$1 trillion", "57.5 bps", "Sept. 8"
-- **company**: company names, fund names, government bodies that are central to the story
-  Examples: "Nvidia", "Treasury", "Federal Reserve", "Anthropic", "Ford", "JPMorgan"
-- **risk**: phrases that signal danger, loss, bearish outcome, or threat
-  Examples: "debt crisis", "tariff exposure", "margin squeeze", "yield spike", "retaliates", "collapse"
-- **positive**: phrases that signal gain, bullish outcome, opportunity, or strength
-  Examples: "beats estimates", "fully driverless", "record high", "safe haven", "best week in 2 years"
+- **number**: the specific quantity that drives the causal chain — the magnitude that makes the event significant
+  Ask: "would the story be the same if this number were 10x smaller?" If yes, highlight it.
+  Examples: "$20B" (scale of tariff), "50%" (rate that breaks supply chains), "4.738%" (yield level that reprices all debt), "+7.99% wk" (best Bitcoin week in 2yr), "$1 trillion" (scale of buyback)
+- **company**: the company or institution whose action or exposure is central to the investment thesis
+  Examples: "Nvidia" (whose earnings define the AI sector), "Ford" (whose supply chain is directly exposed), "Federal Reserve" (whose signal moves all markets)
+- **risk**: the phrase that names the downside — what could go wrong or what is already hurting
+  Examples: "debt crisis", "tariff exposure", "50% cost increase", "yield spike", "retaliates dollar-for-dollar"
+- **positive**: the phrase that names the upside — what is working or accelerating
+  Examples: "fully driverless", "best week in 2 years", "safe haven bid", "dollar-for-dollar hedge"
 
 Rules:
-- Highlight the exact substring as it appears in `what`, mechanism steps, or `so_what`
-- 4–10 highlights per story — not every word, but every fact that matters
-- Include at least 2 numbers, 1 company, and 1 risk or positive per story
-- Short phrases are better than long ones: "$20B" not "50% tariffs on $20B of Canadian goods"
+- Match the exact substring as it appears in `what`, mechanism steps, or `so_what`
+- 5–8 highlights per story — not every word, but every fact that drives your reasoning
+- Prefer the most specific phrase: "$20B" over "billions", "4.738%" over "high yield"
+- Short phrases are better than long ones
 
 
 - NEVER add companies, lawsuits, or events not explicitly in the source text
