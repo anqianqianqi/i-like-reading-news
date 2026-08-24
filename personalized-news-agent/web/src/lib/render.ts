@@ -479,8 +479,19 @@ border-bottom:2px solid var(--bd);padding:28px 32px 16px;}
 .date{font-size:11px;color:var(--m);letter-spacing:.8px;text-transform:uppercase;
 margin-bottom:8px;font-family:system-ui,sans-serif;}
 .sec{margin-top:32px;max-width:700px;margin-left:auto;margin-right:auto;padding:0 24px;}
-.story-title{font-size:1.15rem;font-weight:700;margin-bottom:8px;
-border-bottom:2px solid var(--a);padding-bottom:6px;font-family:Georgia,serif;}
+.sh{display:flex;align-items:center;gap:7px;margin-bottom:10px;padding-bottom:7px;
+border-bottom:1.5px solid var(--bd);}
+.sn{background:var(--a);color:#fff;font-size:10px;font-weight:700;width:20px;
+height:20px;border-radius:50%;display:flex;align-items:center;
+justify-content:center;flex-shrink:0;font-family:system-ui,sans-serif;}
+.sh-title{font-size:1.05rem;font-weight:700;font-family:Georgia,serif;}
+.badges{display:flex;gap:3px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;}
+.badge{font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;
+border-radius:7px;font-family:system-ui,sans-serif;}
+.b-mb{background:#fff3cd;color:#92400e;} .b-cn{background:#fef2f2;color:#991b1b;}
+.b-rt{background:#fee2e2;color:#9a1515;} .b-tl{background:#f3e8ff;color:#6b21a8;}
+.b-rd{background:#eff6ff;color:#1e40af;} .b-ib{background:#e0f2fe;color:#0c4a6e;}
+.b-sa{background:#ecfdf5;color:#065f46;} .b-multi{background:#f1f5f9;color:#334155;}
 .story{margin-bottom:8px;}
 .narrative{font-size:15px;line-height:1.8;margin-bottom:8px;color:var(--text);}
 .why-block{background:var(--al);border-left:3px solid var(--a);
@@ -537,7 +548,7 @@ function renderNarrativeWhy(rawText: string): string {
   // Auto-highlight numbers and dollar amounts in the text
   function autoHL(t: string): string {
     // Escape first, then inject highlights — careful not to double-escape
-    t = t.replace(/\$[\d,.]+[BMKbmk]?/g, m => `<span class="hn">${m}</span>`);
+    t = t.replace(/\$[\d,.]+[BMKbmk]?(?:\s+(?:trillion|billion|million|thousand))?/gi, m => `<span class="hn">${m}</span>`);
     t = t.replace(/\b\d+[.,]?\d*%/g, m => `<span class="hn">${m}</span>`);
     return t;
   }
@@ -553,7 +564,7 @@ function renderNarrativeWhy(rawText: string): string {
 
   // Tag assignments by position
   const TAGS: { cls: string; tagCls: string; label: string }[] = [
-    { cls: "wt-backdrop",  tagCls: "wt-tag-backdrop",  label: "backdrop"   },
+    { cls: "wt-backdrop",  tagCls: "wt-tag-backdrop",  label: "context"    },
     { cls: "wt-mechanism", tagCls: "wt-tag-mechanism",  label: "mechanism"  },
     { cls: "wt-result",    tagCls: "wt-tag-result",     label: "result"     },
   ];
@@ -605,7 +616,10 @@ export function renderStoryteller(data: any): string {
 
   sections.push(`
 <div class="sec">
-  <div class="story-title">The Market Picture</div>
+  <div class="sh">
+    <div class="sn">$</div>
+    <span class="sh-title">The Market Picture</span>
+  </div>
   <div class="mkts">${stTickers}</div>
   <div class="note">${esc(markets.key_mechanism || "")} — <em>${esc(markets.week_ahead || "")}</em></div>
 </div>`);
@@ -628,7 +642,7 @@ export function renderStoryteller(data: any): string {
       let t = esc(text);
       t = applyHighlights(t, hl);
       // Auto-highlight numbers and dollar amounts
-      t = t.replace(/\$[\d,.]+[BMKbmk]?/g, m => `<span class="hn">${m}</span>`);
+      t = t.replace(/\$[\d,.]+[BMKbmk]?(?:\s+(?:trillion|billion|million|thousand))?/gi, m => `<span class="hn">${m}</span>`);
       t = t.replace(/\b\d+[.,]?\d*%/g, m => `<span class="hn">${m}</span>`);
       return t;
     }
@@ -646,6 +660,17 @@ export function renderStoryteller(data: any): string {
       return `<div class="so-what-item"><span class="so-icon">—</span><span>${processNarrative(b)}</span></div>`;
     }).join("");
 
+    const srcMeta: Record<string, [string, string]> = {
+      MB: ["Morning Brew","b-mb"], CNBC: ["CNBC","b-cn"], Reuters: ["Reuters","b-rt"],
+      TLDR: ["TLDR","b-tl"], Rundown: ["Rundown AI","b-rd"], ITBrew: ["IT Brew","b-ib"], SA: ["SA","b-sa"]
+    };
+    const badgesHtml = (story.sources || []).length > 2
+      ? `<span class="badge b-multi">Multi-source</span>`
+      : (story.sources || []).map((s: string) => {
+          const [label, cls] = srcMeta[s] || [s, "b-multi"];
+          return `<span class="badge ${cls}">${label}</span>`;
+        }).join("");
+
     // Price moves — inline styles via shared renderer
     const movesHtml = renderPriceMoves(story.price_moves || []);
 
@@ -654,7 +679,11 @@ export function renderStoryteller(data: any): string {
 
     sections.push(`
 <div class="sec">
-  <div class="story-title">${i + 1}. ${esc(story.title)}</div>
+  <div class="sh">
+    <div class="sn">${i + 1}</div>
+    <span class="sh-title">${esc(story.title)}</span>
+    <div class="badges">${badgesHtml}</div>
+  </div>
   <div class="story">
     ${formatNarrative(narrativeText)}
     ${movesHtml}
@@ -674,7 +703,11 @@ export function renderStoryteller(data: any): string {
 
   sections.push(`
 <div class="sec hits">
-  <div class="story-title">Also today</div>
+  <div class="sh">
+    <div class="sn">#</div>
+    <span class="sh-title">Also today</span>
+    <div class="badges"><span class="badge b-multi">All Sources</span></div>
+  </div>
   <ul>
     ${hitsHtml}
   </ul>
