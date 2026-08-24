@@ -46,22 +46,6 @@ padding:1px 5px;border-radius:3px;margin-right:5px;vertical-align:middle;}
 .st-mechanism{background:#f1f5f9;color:#475569;}
 .st-result-short{background:#fff3cd;color:#713f12;}
 .st-result-long{background:#dcfce7;color:#14532d;}
-.pmoves{display:flex;flex-direction:column;gap:4px;margin-top:8px;}
-.pm{display:flex;align-items:center;gap:6px;border-radius:6px;padding:6px 11px;font-size:12px;}
-.pm-up{background:#dcfce7;border:1px solid #bbf7d0;}
-.pm-dn{background:#fce7f3;border:1px solid #fbcfe8;}
-.pm-watch{background:#fff3cd;border:1px solid #fde68a;}
-.pm-tick{font-weight:800;font-family:monospace;flex-shrink:0;}
-.pm-up .pm-tick,.pm-up .pm-mag{color:#14532d;}
-.pm-dn .pm-tick,.pm-dn .pm-mag{color:#831843;}
-.pm-watch .pm-tick,.pm-watch .pm-mag{color:#713f12;}
-.pm-company{flex-shrink:0;opacity:.7;}
-.pm-sep{opacity:.35;flex-shrink:0;}
-.pm-mag{font-weight:700;flex-shrink:0;}
-.pm-why{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.pm-up .pm-why,.pm-up .pm-company{color:#166534;}
-.pm-dn .pm-why,.pm-dn .pm-company{color:#9d174d;}
-.pm-watch .pm-why,.pm-watch .pm-company{color:#92400e;}
 .sowhat{background:var(--al);border-left:3px solid var(--a);
 border-radius:0 6px 6px 0;padding:8px 12px;font-size:13px;margin-top:8px;}
 .swl{color:var(--a);font-weight:700;font-size:9px;text-transform:uppercase;
@@ -242,6 +226,43 @@ function renderChains(
   return `<div class="chains">${blocks.join("")}</div>`;
 }
 
+// ── Shared price moves renderer — always inline styles, never CSS class descendants ──
+// This guarantees green/red/amber colors work inside iframes and across all render targets.
+function renderPriceMoves(
+  price_moves: { ticker: string; company: string; direction: string; magnitude: string; reason: string }[]
+): string {
+  if (!price_moves?.length) return "";
+
+  const DIR_COLORS: Record<string, { bg: string; border: string; text: string; dimText: string }> = {
+    up:    { bg: "#dcfce7", border: "#bbf7d0", text: "#14532d", dimText: "#166534" },
+    dn:    { bg: "#fce7f3", border: "#fbcfe8", text: "#831843", dimText: "#9d174d" },
+    watch: { bg: "#fff3cd", border: "#fde68a", text: "#713f12", dimText: "#92400e" },
+  };
+  const DIR_SYM: Record<string, string> = { up: "↑", dn: "↓", watch: "~" };
+
+  const cards = price_moves.map(m => {
+    const c = DIR_COLORS[m.direction] || DIR_COLORS.watch;
+    const sym = DIR_SYM[m.direction] || "~";
+    const mag = m.magnitude || sym;
+    const companyHtml = m.company
+      ? `<span style="opacity:.65;flex-shrink:0;color:${c.dimText};font-size:11px;"> / ${esc(m.company)}</span>`
+      : "";
+    const sepHtml = `<span style="opacity:.3;flex-shrink:0;color:${c.text};margin:0 2px;">·</span>`;
+    const whyHtml = m.reason
+      ? `${sepHtml}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${c.dimText};font-size:11px;">${esc(m.reason)}</span>`
+      : "";
+    return `<div style="display:flex;align-items:center;gap:5px;border-radius:6px;padding:5px 10px;font-size:12px;font-family:system-ui,sans-serif;background:${c.bg};border:1px solid ${c.border};margin-bottom:4px;min-width:0;">
+  <span style="font-weight:800;font-family:monospace;flex-shrink:0;color:${c.text};">${esc(m.ticker)}</span>
+  ${companyHtml}
+  <span style="font-weight:700;flex-shrink:0;color:${c.text};margin-left:2px;">${esc(mag)}</span>
+  ${whyHtml}
+</div>`;
+  }).join("");
+
+  return `<div style="display:flex;flex-direction:column;gap:0;margin:8px 0;">${cards}</div>`;
+}
+
+// ── Engineer Renderer ──────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function renderEngineer(data: any): string {
   const today = data.date || new Date().toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
@@ -269,7 +290,7 @@ export function renderEngineer(data: any): string {
 </div>`);
 
   // Markets
-  const tickers = (markets.tickers || []).map((t: { label: string; value: string; change: string; direction: string }) => `
+  const mktTickers = (markets.tickers || []).map((t: { label: string; value: string; change: string; direction: string }) => `
     <div class="mkt">
       <div class="mn">${esc(t.label)}</div>
       <div class="mv ${t.direction === "neutral" ? "" : t.direction}">${esc(t.value)}</div>
@@ -282,7 +303,7 @@ export function renderEngineer(data: any): string {
   <div class="sh"><div class="sn">$</div>
     <h2>Markets — ${esc(markets.summary_title || "")}</h2>
   </div>
-  <div class="mkts">${tickers}</div>
+  <div class="mkts">${mktTickers}</div>
   <div class="note">
     <strong>Why:</strong> ${mechInline}<br/><br/>
     <strong>Watch:</strong> ${esc(markets.week_ahead || "")}
@@ -322,28 +343,7 @@ export function renderEngineer(data: any): string {
         }).join("");
 
     const chainsHtml = renderChains(story.mechanism || [], hl, gl);
-
-    // Price moves
-    const DIR_CLS: Record<string, string> = { up: "pm-up", dn: "pm-dn", watch: "pm-watch" };
-    const DIR_SYM: Record<string, string> = { up: "↑", dn: "↓", watch: "watch" };
-    let movesHtml = "";
-    if (story.price_moves?.length) {
-      const cards = story.price_moves.map(m => {
-        const dc = DIR_CLS[m.direction] || "pm-watch";
-        const sym = DIR_SYM[m.direction] || "watch";
-        const magStr = m.magnitude
-          ? `<span class="pm-mag">${esc(m.magnitude)}</span>`
-          : `<span class="pm-mag">${sym}</span>`;
-        const company = m.company
-          ? `<span class="pm-sep">/</span><span class="pm-company">${esc(m.company)}</span>`
-          : "";
-        const why = m.reason
-          ? `<span class="pm-why">${esc(m.reason)}</span>`
-          : "";
-        return `<div class="pm ${dc}"><span class="pm-tick">${esc(m.ticker)}</span>${company} ${magStr} ${why}</div>`;
-      }).join("\n");
-      movesHtml = `<div class="pmoves">${cards}</div>`;
-    }
+    const movesHtml = renderPriceMoves(story.price_moves || []);
 
     // So what bullets
     const bullets = (story.so_what || []).map((b: string) =>
@@ -441,68 +441,10 @@ export function renderEngineer(data: any): string {
 
 // ── Storyteller Renderer ───────────────────────────────────────────────────
 // Same JSON, different visual treatment:
-// - No arrow chains — mechanism steps shown as flowing prose paragraphs
-// - Warmer, softer typography
-// - so_what framed as "why this matters" not investment bullets
-// - Bigger type, more breathing room
-
-const STORYTELLER_CSS = `
-:root{--bg:#fffdf9;--card:#fff;--a:#d97706;--al:#fef3c7;--text:#1c1917;
---m:#78716c;--bd:#e7e5e4;--sh:0 2px 12px rgba(0,0,0,.06);}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:Georgia,serif;
-font-size:16px;line-height:1.8;padding-bottom:60px;}
-.hero{background:linear-gradient(135deg,#fffdf9,#fef3c7);
-border-bottom:2px solid var(--bd);padding:28px 32px 18px;}
-.hero h1{font-size:1.6rem;font-weight:700;margin-bottom:4px;font-family:Georgia,serif;}
-.date{font-size:11px;color:var(--m);font-weight:600;letter-spacing:.5px;
-text-transform:uppercase;margin-bottom:8px;font-family:system-ui,sans-serif;}
-.srcs{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
-.src{background:var(--card);border:1px solid var(--bd);border-radius:10px;
-padding:2px 9px;font-size:11px;color:var(--m);font-family:system-ui,sans-serif;}
-.sec{margin-top:32px;max-width:680px;margin-left:auto;margin-right:auto;padding:0 24px;}
-.story-num{color:var(--a);font-size:11px;font-weight:700;text-transform:uppercase;
-letter-spacing:.8px;display:block;margin-bottom:6px;font-family:system-ui,sans-serif;}
-.story-title{font-size:1.2rem;font-weight:700;margin-bottom:16px;line-height:1.4;}
-.story-body{background:var(--card);border:1px solid var(--bd);border-radius:12px;
-padding:20px 24px;box-shadow:var(--sh);}
-.story-what{font-size:16px;line-height:1.8;margin-bottom:14px;}
-.story-why{background:#fef3c7;border-left:3px solid var(--a);
-border-radius:0 8px 8px 0;padding:12px 16px;font-size:15px;
-line-height:1.75;margin-bottom:14px;font-style:italic;}
-.story-why-label{font-style:normal;font-size:10px;font-weight:700;
-text-transform:uppercase;letter-spacing:.6px;color:var(--a);
-display:block;margin-bottom:4px;font-family:system-ui,sans-serif;}
-.story-sowhat{margin-top:14px;padding-top:14px;border-top:1px solid var(--bd);}
-.story-sowhat-label{font-size:10px;font-weight:700;text-transform:uppercase;
-letter-spacing:.6px;color:var(--m);display:block;margin-bottom:8px;
-font-family:system-ui,sans-serif;}
-.story-sowhat p{font-size:15px;line-height:1.7;margin-bottom:8px;}
-.story-sowhat p:last-child{margin-bottom:0;}
-.mkts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
-.mkt{background:var(--card);border:1px solid var(--bd);border-radius:8px;
-padding:8px 10px;text-align:center;}
-.mn{font-size:9px;color:var(--m);font-weight:700;text-transform:uppercase;
-font-family:system-ui,sans-serif;}
-.mv{font-size:.95rem;font-weight:700;font-family:system-ui,sans-serif;}
-.mc{font-size:10px;font-weight:600;font-family:system-ui,sans-serif;}
-.up{color:#059669;} .dn{color:#dc2626;}
-.mkt-note{background:#fef3c7;border-left:3px solid var(--a);
-border-radius:0 8px 8px 0;padding:10px 14px;font-size:14px;margin-top:8px;}
-.hits-section{margin-top:32px;max-width:680px;margin-left:auto;
-margin-right:auto;padding:0 24px;}
-.hits-title{font-size:1rem;font-weight:700;margin-bottom:14px;
-border-bottom:1.5px solid var(--bd);padding-bottom:8px;
-font-family:system-ui,sans-serif;}
-.hit{font-size:14px;line-height:1.6;margin-bottom:8px;
-padding-bottom:8px;border-bottom:1px solid #f5f5f4;}
-.hit:last-child{border-bottom:none;}
-.hit-topic{font-weight:700;font-family:system-ui,sans-serif;}
-footer{margin-top:32px;text-align:center;color:var(--m);font-size:11px;
-padding:14px;border-top:1px solid var(--bd);font-family:system-ui,sans-serif;}
-@media(max-width:560px){.hero{padding:18px 16px 14px;}
-.sec,.hits-section{padding:0 12px;}.mkts{grid-template-columns:repeat(2,1fr);}}
-`;
+// - No arrow chains — mechanism shown as prose with visual step-labels
+// - narrative_why split into backdrop / mechanism / result tagged sentences
+// - Warmer serif typography, sentence-level paragraphs, emoji so-what bullets
+// - Inline number + company auto-highlights
 
 const CSS_STORYTELLER = `
 :root{--bg:#fffef9;--card:#fff;--a:#d97706;--al:#fef3c7;--text:#1c1917;
@@ -514,51 +456,106 @@ a{color:var(--a);}
 .hero{background:linear-gradient(135deg,#fffef9,#fef3c7);
 border-bottom:2px solid var(--bd);padding:28px 32px 16px;}
 .hero h1{font-size:1.6rem;font-weight:700;margin-bottom:4px;font-family:Georgia,serif;}
-.date{font-size:11px;color:var(--m);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
+.date{font-size:11px;color:var(--m);letter-spacing:.8px;text-transform:uppercase;
+margin-bottom:8px;font-family:system-ui,sans-serif;}
 .sec{margin-top:32px;max-width:700px;margin-left:auto;margin-right:auto;padding:0 24px;}
 .story-title{font-size:1.15rem;font-weight:700;margin-bottom:8px;
 border-bottom:2px solid var(--a);padding-bottom:6px;font-family:Georgia,serif;}
 .story{margin-bottom:8px;}
-.narrative{font-size:15px;line-height:1.8;margin-bottom:14px;color:var(--text);}
-.why-prose{background:var(--al);border-left:3px solid var(--a);
-border-radius:0 6px 6px 0;padding:10px 14px;font-size:14px;
-line-height:1.75;margin-bottom:10px;font-style:italic;}
+.narrative{font-size:15px;line-height:1.8;margin-bottom:8px;color:var(--text);}
+.why-block{background:var(--al);border-left:3px solid var(--a);
+border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:10px;}
+.why-label{font-style:normal;font-size:10px;font-weight:700;text-transform:uppercase;
+letter-spacing:.6px;color:var(--a);display:block;margin-bottom:8px;
+font-family:system-ui,sans-serif;}
+.why-sentence{font-size:14px;line-height:1.75;font-style:italic;
+margin-bottom:6px;padding-left:10px;border-left:2px solid transparent;}
+.why-sentence:last-child{margin-bottom:0;}
+.wt-backdrop{border-left-color:#d97706;}
+.wt-mechanism{border-left-color:#6c5ce7;}
+.wt-result{border-left-color:#10b981;}
+.wt-tag{font-style:normal;font-size:9px;font-weight:700;text-transform:uppercase;
+letter-spacing:.4px;padding:1px 5px;border-radius:3px;margin-right:5px;
+vertical-align:middle;font-family:system-ui,sans-serif;}
+.wt-tag-backdrop{background:#fef3c7;color:#92400e;}
+.wt-tag-mechanism{background:#f1f5f9;color:#475569;}
+.wt-tag-result{background:#dcfce7;color:#14532d;}
 .so-what-st{border-top:1px solid var(--bd);padding-top:10px;margin-top:10px;}
 .so-what-label{font-size:10px;font-weight:700;text-transform:uppercase;
-letter-spacing:.6px;color:var(--a);margin-bottom:6px;display:block;}
+letter-spacing:.6px;color:var(--a);margin-bottom:6px;display:block;
+font-family:system-ui,sans-serif;}
 .so-what-item{font-size:13px;line-height:1.6;margin-bottom:6px;
 display:flex;align-items:flex-start;gap:8px;}
 .so-icon{flex-shrink:0;font-size:14px;}
 .mkts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
 .mkt{background:var(--card);border:1px solid var(--bd);border-radius:8px;
 padding:8px 10px;text-align:center;}
-.mn{font-size:9px;color:var(--m);font-weight:700;text-transform:uppercase;}
-.mv{font-size:.95rem;font-weight:700;} .mc{font-size:10px;}
+.mn{font-size:9px;color:var(--m);font-weight:700;text-transform:uppercase;
+font-family:system-ui,sans-serif;}
+.mv{font-size:.95rem;font-weight:700;font-family:system-ui,sans-serif;}
+.mc{font-size:10px;font-family:system-ui,sans-serif;}
 .up{color:#16a34a;} .dn{color:#dc2626;}
 .note{background:var(--al);border-left:3px solid var(--a);
 border-radius:0 6px 6px 0;padding:8px 12px;font-size:14px;margin-top:8px;}
+.hn{background:#fef9c3;color:#713f12;border-radius:3px;padding:0 3px;font-weight:700;font-style:normal;}
+.hc{background:#e0f2fe;color:#0c4a6e;border-radius:3px;padding:0 3px;font-weight:700;font-style:normal;}
 .hits{margin-top:24px;}
 .hits ul{padding-left:0;list-style:none;}
 .hits li{font-size:13px;line-height:1.6;margin-bottom:8px;
-padding-left:16px;position:relative;}
+padding-left:16px;position:relative;font-family:system-ui,sans-serif;}
 .hits li::before{content:"—";position:absolute;left:0;color:var(--a);}
 footer{margin-top:32px;text-align:center;color:var(--m);font-size:11px;
-padding:12px;border-top:1px solid var(--bd);}
-.pmoves{display:flex;flex-direction:column;gap:4px;margin:10px 0;}
-.pm{display:flex;align-items:center;gap:6px;border-radius:6px;padding:5px 10px;font-size:12px;font-family:system-ui,sans-serif;}
-.pm-up{background:#dcfce7;border:1px solid #bbf7d0;}
-.pm-dn{background:#fce7f3;border:1px solid #fbcfe8;}
-.pm-watch{background:#fff3cd;border:1px solid #fde68a;}
-.pm-tick{font-weight:800;font-family:monospace;flex-shrink:0;}
-.pm-up .pm-tick,.pm-up .pm-mag{color:#14532d;}
-.pm-dn .pm-tick,.pm-dn .pm-mag{color:#831843;}
-.pm-watch .pm-tick,.pm-watch .pm-mag{color:#713f12;}
-.pm-company{flex-shrink:0;opacity:.7;}.pm-sep{opacity:.35;flex-shrink:0;}
-.pm-mag{font-weight:700;flex-shrink:0;}
-.pm-why{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+padding:12px;border-top:1px solid var(--bd);font-family:system-ui,sans-serif;}
 @media(max-width:560px){.hero{padding:16px;}.sec{padding:0 12px;}
 .mkts{grid-template-columns:repeat(2,1fr);}}
 `;
+
+// Split narrative_why into sentences and tag them as backdrop / mechanism / result.
+// Works on 2-3 sentence prose: first = backdrop, middle = mechanism, last = result.
+function renderNarrativeWhy(rawText: string): string {
+  if (!rawText) return "";
+
+  // Auto-highlight numbers and dollar amounts in the text
+  function autoHL(t: string): string {
+    // Escape first, then inject highlights — careful not to double-escape
+    t = t.replace(/\$[\d,.]+[BMKbmk]?/g, m => `<span class="hn">${m}</span>`);
+    t = t.replace(/\b\d+[.,]?\d*%/g, m => `<span class="hn">${m}</span>`);
+    return t;
+  }
+
+  // Split on sentence boundaries
+  const raw = esc(rawText);
+  const sentences = raw
+    .split(/(?<=[.!?])\s+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 5);
+
+  if (sentences.length === 0) return "";
+
+  // Tag assignments by position
+  const TAGS: { cls: string; tagCls: string; label: string }[] = [
+    { cls: "wt-backdrop",  tagCls: "wt-tag-backdrop",  label: "backdrop"   },
+    { cls: "wt-mechanism", tagCls: "wt-tag-mechanism",  label: "mechanism"  },
+    { cls: "wt-result",    tagCls: "wt-tag-result",     label: "result"     },
+  ];
+
+  const sentenceHtml = sentences.map((s, i) => {
+    // Last sentence always gets "result" tag regardless of total count
+    let tagIdx = i;
+    if (i >= TAGS.length - 1) tagIdx = TAGS.length - 1;
+    // If only 2 sentences: backdrop + result (skip mechanism)
+    if (sentences.length === 2 && i === 1) tagIdx = 2;
+
+    const tag = TAGS[tagIdx];
+    const highlighted = autoHL(s);
+    return `<div class="why-sentence ${tag.cls}"><span class="wt-tag ${tag.cls} ${tag.tagCls}">${tag.label}</span>${highlighted}</div>`;
+  }).join("\n");
+
+  return `<div class="why-block">
+  <span class="why-label">Why it happened</span>
+  ${sentenceHtml}
+</div>`;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function renderStoryteller(data: any): string {
@@ -576,8 +573,8 @@ export function renderStoryteller(data: any): string {
   </p>
 </div>`);
 
-  // Markets — simpler summary for storyteller
-  const tickers = (markets.tickers || []).map((t: { label: string; value: string; change: string; direction: string }) => `
+  // Markets
+  const stTickers = (markets.tickers || []).map((t: { label: string; value: string; change: string; direction: string }) => `
     <div class="mkt">
       <div class="mn">${esc(t.label)}</div>
       <div class="mv ${t.direction === "neutral" ? "" : t.direction}">${esc(t.value)}</div>
@@ -587,7 +584,7 @@ export function renderStoryteller(data: any): string {
   sections.push(`
 <div class="sec">
   <div class="story-title">The Market Picture</div>
-  <div class="mkts">${tickers}</div>
+  <div class="mkts">${stTickers}</div>
   <div class="note">${esc(markets.key_mechanism || "")} — <em>${esc(markets.week_ahead || "")}</em></div>
 </div>`);
 
@@ -606,17 +603,15 @@ export function renderStoryteller(data: any): string {
     const whyText = story.narrative_why || "";
 
     function processNarrative(text: string): string {
-      // Apply highlights AND inject inline colored spans for numbers/companies
       let t = esc(text);
-      // Apply explicit highlights from the data
       t = applyHighlights(t, hl);
-      // Auto-highlight numbers not already highlighted
-      t = t.replace(/\$[\d,.]+[BMK]?/g, m => `<span class="hn">${m}</span>`);
-      t = t.replace(/\b\d+[.,]?\d*%\b/g, m => `<span class="hn">${m}</span>`);
+      // Auto-highlight numbers and dollar amounts
+      t = t.replace(/\$[\d,.]+[BMKbmk]?/g, m => `<span class="hn">${m}</span>`);
+      t = t.replace(/\b\d+[.,]?\d*%/g, m => `<span class="hn">${m}</span>`);
       return t;
     }
 
-    // Split narrative into paragraphs — each sentence on its own line with space
+    // Split narrative into sentence-level paragraphs for readability
     function formatNarrative(text: string): string {
       const processed = processNarrative(text);
       const sentences = processed.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 10);
@@ -624,27 +619,17 @@ export function renderStoryteller(data: any): string {
       return sentences.map(s => `<p class="narrative">${s}</p>`).join("\n");
     }
 
-    // So what — each bullet as a distinct visual card
+    // So what — emoji bullets
     const soWhatItems = (story.so_what || []).map((b, idx) => {
       const icons = ["💡", "📈", "👀"];
       return `<div class="so-what-item"><span class="so-icon">${icons[idx] || "•"}</span><span>${processNarrative(b)}</span></div>`;
     }).join("");
 
-    // Price moves — colored cards, identical to engineer
-    const DIR_CLS: Record<string, string> = { up: "pm-up", dn: "pm-dn", watch: "pm-watch" };
-    const DIR_SYM: Record<string, string> = { up: "↑", dn: "↓", watch: "watch" };
-    let movesHtml = "";
-    if (story.price_moves?.length) {
-      const cards = story.price_moves.map((m: { ticker: string; company: string; direction: string; magnitude: string; reason: string }) => {
-        const dc = DIR_CLS[m.direction] || "pm-watch";
-        const sym = DIR_SYM[m.direction] || "watch";
-        const magStr = m.magnitude ? `<span class="pm-mag">${esc(m.magnitude)}</span>` : `<span class="pm-mag">${sym}</span>`;
-        const company = m.company ? `<span class="pm-sep">/</span><span class="pm-company">${esc(m.company)}</span>` : "";
-        const why = m.reason ? `<span class="pm-why">${esc(m.reason)}</span>` : "";
-        return `<div class="pm ${dc}"><span class="pm-tick">${esc(m.ticker)}</span>${company} ${magStr} ${why}</div>`;
-      }).join("");
-      movesHtml = `<div class="pmoves">${cards}</div>`;
-    }
+    // Price moves — inline styles via shared renderer
+    const movesHtml = renderPriceMoves(story.price_moves || []);
+
+    // narrative_why — visual step tags
+    const whyBlockHtml = renderNarrativeWhy(whyText);
 
     sections.push(`
 <div class="sec">
@@ -652,7 +637,7 @@ export function renderStoryteller(data: any): string {
   <div class="story">
     ${formatNarrative(narrativeText)}
     ${movesHtml}
-    ${whyText ? `<div class="why-prose">${processNarrative(whyText)}</div>` : ""}
+    ${whyBlockHtml}
     <div class="so-what-st">
       <span class="so-what-label">Why it matters</span>
       ${soWhatItems}
@@ -661,7 +646,7 @@ export function renderStoryteller(data: any): string {
 </div>`);
   });
 
-  // Quick hits — conversational list
+  // Quick hits
   const hitsHtml = (data.quick_hits || []).map((h: { topic: string; detail: string }) =>
     `<li><strong>${esc(h.topic)}:</strong> ${esc(h.detail)}</li>`
   ).join("\n    ");
