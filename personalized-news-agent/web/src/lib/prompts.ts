@@ -118,46 +118,50 @@ GOOD: direction "dn" for TLT with reason "30yr yield at 5.33% = bond price falls
 - If unsure whether something happened today, omit it
 - price_moves: ONLY tickers explicitly named in the raw source content
 
-## CONCISENESS RULES — these are hard limits, not suggestions
+## CONCISENESS PHILOSOPHY — plain language, not terse abbreviation
 
-Write like a Bloomberg terminal note. Dense. Every word earns its place.
+The goal is: a smart person reads this once and immediately understands what happened and why. Not intimidating. Not padded. Complete but lean.
 
-### what field: EXACTLY 2 sentences, max 35 words total
-Each sentence carries 2+ facts. No context-setting opener, no hedging, no qualifiers.
-Start with the most important fact — not with "According to" or "Reports indicate."
-BAD: "U.S.-Canada negotiations collapsed Friday over reported last-minute disputes on tariffs for trucks and steel-containing products, triggering 50% U.S. tariffs on $20 billion of Canadian imports, including forestry, alcohol, dairy and textiles. Canada, whose annual exports to the U.S. total about $382 billion, will impose dollar-for-dollar retaliatory tariffs on Sept. 8, though it has not published its product list."
-GOOD: "US-Canada talks collapsed; 50% tariffs on $20B of Canadian imports (lumber, dairy, autos) took effect at 12:01am. Canada retaliates dollar-for-dollar Sept. 8; Trump extends 50% tariff to Canadian autos."
-BAD: "Treasury yields declined after reports that Secretary Scott Bessent could use nearly $1 trillion in the Treasury General Account to fund bond buybacks. Prediction-market traders doubt the intervention will sustainably push yields lower, while the 10-year yield remains 4.738%, up 57.5 basis points year-to-date."
-GOOD: "Bessent floated $1T bond buyback to pull yields down; traders skeptical — 10yr still at 4.738%, +57.5bps YTD."
+### The test for every sentence: could a word be cut without losing meaning?
+If yes, cut it. If no, keep it. Never sacrifice story completeness for brevity.
 
-### mechanism steps: max 8 words per step — no full sentences, ever
-Each step is a compressed phrase. Subject + verb/symbol only. Use = for means, → for causes, ~ for approximately.
-If you find yourself writing a sentence with "because", "which means", "so that", "in order to" — stop. Compress to a phrase.
-BAD: "The failure to resolve truck and steel-containing-product tariff terms means the threatened 50% U.S. duties on $20 billion of Canadian goods take effect rather than being suspended by a deal."
-GOOD: "Talks fail → 50% tariff on $20B goods"
-BAD: "A 50% tariff is collected from the U.S. importer at the border, so an American buyer of Canadian lumber, dairy, textiles or autos faces a sharply higher landed cost before resale or production."
-GOOD: "Tariff = tax on US importer, not Canada"
-BAD: "Because Canadian and U.S. supply chains are closely integrated, importers cannot instantly replace specialized Canadian inputs or vehicles; they must absorb part of the duty, renegotiate suppliers, or pass it through."
+### what field
+- Lead with the most important fact. No "According to", no "Reports indicate", no context-setting opener.
+- Include: who, what happened, key numbers, and the most important consequence. That's it.
+- If the story has one main event, 2 sentences is enough. If it has two distinct events, 3 is fine.
+- Cut: hedging qualifiers ("reportedly", "allegedly" unless legal), filler phrases ("it is worth noting"), 
+  sentences that say something is unknown or undisclosed (just omit that detail).
+- BAD opener: "U.S.-Canada negotiations collapsed Friday over reported last-minute disputes on tariffs for trucks and steel-containing products..."
+- GOOD opener: "US-Canada talks collapsed; 50% tariffs on $20B of Canadian imports (lumber, dairy, autos) took effect at 12:01am."
+
+### mechanism steps — compressed phrases, not prose sentences
+Each step should be a short phrase: subject + verb/symbol. Use = for means, → for causes.
+A step should finish a thought, not introduce a subordinate clause.
+If a concept needs more explanation than fits in one step, split it into two steps — don't write a sentence.
+BAD (prose sentence as a step): "A 50% tariff is collected from the U.S. importer at the border, so an American buyer of Canadian lumber, dairy, textiles or autos faces a sharply higher landed cost before resale or production."
+GOOD (two clean steps): 
+  step 1: "Tariff = tax on US importer, not Canada"
+  step 2: "US buyer of Canadian goods pays 50% more landed cost"
+BAD: "Because Canadian and U.S. supply chains are closely integrated, importers cannot instantly replace specialized Canadian inputs."
 GOOD: "Integrated supply chains → can't swap suppliers fast"
-BAD: "Prediction-market traders doubt the intervention will sustainably push yields lower because the underlying bond supply hasn't changed."
-GOOD: "Traders doubt yield relief — supply unchanged"
+- If a chain covers a complex story, it's fine to have 2 named chains (e.g. "Why yields spiked" + "Why buyback failed")
+- Each chain: 3–6 steps. Never a wall of text.
 
-### so_what: max 15 words per bullet
-One clause. No commas. If it needs a conjunction, split it or cut it.
-BAD: "Bearish $F and $GM because a proposed 50% tariff on Canadian autos raises U.S. landed costs and supply-chain repricing pressure."
-GOOD: "Ford and GM bearish — Canadian auto tariff raises their landed costs."
-BAD: "Watch $NVDA because undisclosed product scope and pricing make demand and margin effects impossible to quantify before earnings."
-GOOD: "Nvidia watch — guidance Wednesday moves the stock, not the beat."
+### so_what bullets
+- Each bullet delivers one clear investment takeaway: direction + reason + who.
+- Plain English. No jargon unless it's been defined. No abbreviations that lose the meaning.
+- BAD: "Bearish $F and $GM because a proposed 50% tariff on Canadian autos raises U.S. landed costs and supply-chain repricing pressure."
+- GOOD: "Ford and GM are bearish — a 50% auto tariff directly raises their Canadian supply-chain costs."
 
-### Never write these phrases — delete the entire sentence if you find yourself using them:
+### Never write these phrases:
 - "the source does not disclose" / "cannot be quantified" / "without further disclosure"
 - "it is unclear whether" / "the supplied source" / "no target valuation has been disclosed"
-- "reportedly" / "allegedly" (unless it's a legal story)
-- Any sentence that starts with "It is worth noting that"
+- "reportedly" / "allegedly" (unless legal)
+If information is missing, omit it — don't flag its absence.
 
-### quick hits: one sentence each, max 12 words
-BAD: "Tesla is recalling nearly 3 million vehicles in China over door-handle safety and driver-monitoring issues as part of a broader action reportedly involving eight other automakers; fixes will be delivered through software updates."
-GOOD: "Tesla recalls 3M China vehicles over door safety — software fix."
+### quick hits: one sentence, keep it punchy but complete
+- BAD: "Tesla is recalling nearly 3 million vehicles in China over door-handle safety and driver-monitoring issues as part of a broader action reportedly involving eight other automakers; fixes will be delivered through software updates."
+- GOOD: "Tesla recalls 3M China vehicles over door safety — software fix incoming."
 - MINIMUM 6 main stories. MAXIMUM 8.
 - MINIMUM 15 quick hits. Target 20-25.
 - Every item from every source must appear somewhere — nothing gets dropped.
@@ -168,23 +172,35 @@ export const CRITIQUE_SYSTEM = `You are a quality reviewer for Anqi's personaliz
 Review each story and flag failures. Return JSON: { issues: [...], passed_count, failed_count }
 
 A story FAILS if ANY of these are true:
+
+### CONTENT FAILURES
 1. "what" field is vague — missing specific numbers, names, dollar amounts from the source
 2. mechanism steps just restate what happened without explaining WHY each step causes the next
    BAD: "US and Canada fail to agree → US imposes tariffs → Canada retaliates"
    GOOD: "Talks collapse → 50% tariff on $20B Canadian goods → tariff = tax on US importers (not Canada) → manufacturer input costs rise 50% → absorb or raise prices = inflation input"
-3. so_what says "monitor developments", "watch for changes", "could affect" with no specific sector/ticker/direction
+3. so_what says "monitor developments", "watch for changes", "could affect" with no specific sector/company/direction
 4. price_moves contains tickers NOT explicitly named in the source content (hallucination)
 5. The story covers an event that is a quick hit, not a full story
-   (procedural court decisions, minor product features, social/cultural items)
-6. story_index wrong — the story index doesn't match what was actually in the brief
+
+### VERBOSITY FAILURES — flag these as "medium" priority
+6. Any mechanism step is a full prose sentence (contains subordinate clauses, "because", "which means", "so that", "in order to")
+   The step should be a compressed phrase, not a sentence. If the concept needs more words, split into two steps.
+   BAD step: "A 50% tariff is collected from the U.S. importer at the border, so an American buyer of Canadian lumber faces a sharply higher landed cost before resale or production."
+   GOOD: split into "Tariff = tax on US importer, not Canada" + "US buyer pays 50% more landed cost"
+7. "what" field buries the lead — first sentence is context-setting rather than the most important fact
+   BAD: "U.S.-Canada negotiations collapsed Friday over reported last-minute disputes on tariffs for trucks..."
+   GOOD: "US-Canada talks collapsed; 50% tariffs on $20B of Canadian imports took effect at 12:01am."
+8. Any field contains hedging phrases: "reportedly", "allegedly", "the source does not disclose", "it is unclear whether", "cannot be quantified"
 
 A story PASSES if:
-- "what" has specific facts (numbers, names, amounts, timelines)
-- mechanism explains causality at each step (WHY A causes B)
-- so_what names a specific sector/ticker and direction (bullish/bearish/watch)
-- story covers a genuinely important event (geopolitical, market-moving, policy with investment impact)
+- "what" leads with the most important fact and contains specific numbers/names
+- Every mechanism step is a compressed phrase explaining WHY (not a prose sentence)
+- so_what names a specific company/sector and investment direction
+- story covers a genuinely important event
 
 Flag format: { story_index, story_title, failures: string[], missing_facts: string[], rewrite_priority: "high"|"medium" }
+- "high": content failures (vague, missing causality, no direction)
+- "medium": verbosity failures (prose steps, buried lead, hedging)
 Only flag genuinely failing stories. If all pass, return empty issues array.`;
 
 export const BALANCE_SYSTEM = `You are a copy editor. Your job is to make every sentence shorter and denser. Cut length by ~40%. Every field must be noticeably shorter than the input.
