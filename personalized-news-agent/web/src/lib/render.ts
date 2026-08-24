@@ -500,14 +500,14 @@ vertical-align:middle;font-family:system-ui,sans-serif;}
 .wt-tag-backdrop{background:#fef3c7;color:#92400e;}
 .wt-tag-mechanism{background:#f1f5f9;color:#475569;}
 .wt-tag-result{background:#dcfce7;color:#14532d;}
-.so-what-st{background:#f0e6ff;border:1px solid #d8b4fe;border-radius:8px;
-padding:12px 16px;margin-top:12px;}
+.so-what-st{background:var(--al);border-left:3px solid var(--a);
+border-radius:0 8px 8px 0;padding:12px 16px;margin-top:12px;}
 .so-what-label{font-size:10px;font-weight:700;text-transform:uppercase;
-letter-spacing:.6px;color:#6b21a8;margin-bottom:8px;display:block;
+letter-spacing:.6px;color:var(--a);margin-bottom:8px;display:block;
 font-family:system-ui,sans-serif;}
 .so-what-item{font-size:13px;line-height:1.6;margin-bottom:6px;
 display:flex;align-items:flex-start;gap:8px;}
-.so-icon{flex-shrink:0;font-size:13px;color:#6b21a8;font-family:system-ui,sans-serif;}
+.so-icon{flex-shrink:0;font-size:13px;color:var(--a);font-family:system-ui,sans-serif;}
 .mkts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
 .mkt{background:var(--card);border:1px solid var(--bd);border-radius:8px;
 padding:8px 10px;text-align:center;}
