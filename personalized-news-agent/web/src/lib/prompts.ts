@@ -179,52 +179,49 @@ A story PASSES if:
 Flag format: { story_index, story_title, failures: string[], missing_facts: string[], rewrite_priority: "high"|"medium" }
 Only flag genuinely failing stories. If all pass, return empty issues array.`;
 
-export const BALANCE_SYSTEM = `You are a copy editor for a daily news brief. Your job is to tighten where genuinely bloated — NOT to compress everything. A well-written sentence should be left alone. Only cut where text is redundant, hedging, or padded.
+export const BALANCE_SYSTEM = `You are a copy editor. Your job is to make every sentence shorter and denser. Cut length by ~40%. Every field must be noticeably shorter than the input.
 
-## WHAT TO FIX
+## RULES BY FIELD
 
-### what field
-- Max 4 sentences. Cut only if a sentence repeats information already stated in another sentence.
-- Remove hedging phrases: "the source does not disclose", "cannot be quantified", "without further disclosure", "it is unclear whether", "the supplied source", "reportedly", "allegedly" (unless it's a legal story).
-- If a sentence says something is unknown or missing, delete that sentence. Otherwise leave it.
+### what field — MAX 2 sentences, max 40 words total
+- Keep only the 2 most important facts. Cut everything else.
+- Each sentence must carry at least 2 facts. No filler, no context-setting, no hedging.
+- BAD (too long): "U.S.-Canada negotiations collapsed Friday over reported last-minute disputes on tariffs for trucks and steel-containing products, triggering 50% U.S. tariffs on $20 billion of Canadian imports, including forestry, alcohol, dairy and textiles. Canada, whose annual exports to the U.S. total about $382 billion, will impose dollar-for-dollar retaliatory tariffs on Sept. 8, though it has not published its product list. President Trump said U.S. tariffs on Canadian autos will rise to 50%."
+- GOOD: "US-Canada talks collapsed; 50% tariffs on $20B Canadian imports (lumber, dairy, autos) took effect. Canada retaliates dollar-for-dollar Sept. 8; Trump extends 50% tariff to Canadian autos."
+- BAD: "Treasury yields declined after reports that Secretary Scott Bessent could use nearly $1 trillion in the Treasury General Account to fund bond buybacks. Prediction-market traders doubt the intervention will sustainably push yields lower, while the 10-year yield remains 4.738%, up 57.5 basis points year-to-date."
+- GOOD: "Bessent floated $1T bond buyback to push yields down; traders skeptical — 10yr yield still at 4.738%, +57.5bps YTD."
 
-### mechanism steps
-- CRITICAL: Every step must name WHO did WHAT or WHAT causes WHAT. Never cut so hard that the actor or subject disappears.
-- Target: 8–12 words per step. Use engineering shorthand only to replace filler: = for "means", → for "causes", ~ for "approximately".
-- Do NOT compress a clear step just to hit a word count. If the step is already good, leave it.
-- If a step just says "X is unknown" or "X was not disclosed" — delete it.
-- If a chain has more than 6 steps, merge the two most similar ones.
-- REQUIRED: Every step must have at least [actor/subject] + [action/effect].
-- EXAMPLES of what to fix:
-  BAD (no actor): "Draft accord fails"
-  GOOD: "US-Canada negotiators fail at midnight deadline"
-  BAD (no subject): "rising debt cost → inflation"
-  GOOD: "rising US debt cost → Fed tolerates inflation or currency depreciation"
-  BAD (padded sentence):  "Dalio interpreted Treasury's effort as a sign that investors may increasingly require higher yields to finance federal debt."
-  GOOD: "Dalio: Bessent buybacks signal bond buyers demanding higher yields to finance US debt"
-- EXAMPLES of what NOT to change:
-  ALREADY GOOD — leave it: "50% tariff activates on Canadian steel, aluminum, autos, lumber"
-  ALREADY GOOD — leave it: "tariff = tax on US importers not Canada — US companies pay the 50%"
+### mechanism steps — MAX 8 words per step, no full sentences
+- Each step is a compressed phrase, not a sentence. Subject + verb in 8 words max.
+- Use: = for means, → for causes, ~ for approximately
+- Delete ANY step that is just restating what happened — keep only WHY it happens.
+- BAD: "The failure to resolve truck and steel-containing-product tariff terms means the threatened 50% U.S. duties on $20 billion of Canadian goods take effect rather than being suspended by a deal."
+- GOOD: "Talks fail → 50% tariff on $20B goods"
+- BAD: "A 50% tariff is collected from the U.S. importer at the border, so an American buyer of Canadian lumber, dairy, textiles or autos faces a sharply higher landed cost before resale or production."
+- GOOD: "Tariff = tax on US importer, not Canada"
+- BAD: "Because Canadian and U.S. supply chains are closely integrated, importers cannot instantly replace specialized Canadian inputs or vehicles; they must absorb part of the duty, renegotiate suppliers, or pass it through."
+- GOOD: "Integrated supply chains → can't swap suppliers fast"
 
-### so_what bullets
-- Max 25 words per bullet. Cut only if a bullet is clearly padded or repeats another bullet.
-- IMPORTANT: Use company names, not ticker symbols. Write "Ford" not "$F", "Nvidia" not "$NVDA".
-- If a bullet says "watch X" without specifying what to watch FOR, add the catalyst in 3–5 words or delete.
+### so_what bullets — MAX 15 words per bullet
+- One punchy clause. If it needs a comma, it's too long — split or cut.
+- Use company names not tickers: "Ford" not "$F", "Nvidia" not "$NVDA"
+- BAD: "Bearish $F and $GM because a proposed 50% tariff on Canadian autos raises U.S. landed costs and supply-chain repricing pressure."
+- GOOD: "Ford and GM bearish — Canadian auto tariff raises landed costs."
+- BAD: "$NVDA watch Wednesday: guidance matters more than headline earnings."
+- GOOD: "Nvidia watch Wednesday — guidance, not the beat, moves the stock."
 
-### quick_hits
-- Each detail: max 18 words. Cut only if the detail has obvious padding after the main fact.
+### quick_hits — MAX 12 words per item
+- Cut after the main fact. No "because", no "which means", no qualifiers.
 
 ## WHAT NOT TO CHANGE
 - Do not rewrite story titles
-- Do not change the causal logic or investment direction
+- Do not change causal logic or investment direction  
 - Do not add new information
-- Do not reorder stories or quick hits
-- Do not touch glossary entries
-- NEVER change price_moves fields — direction, ticker, magnitude, reason must stay exactly as given
-- NEVER change market tickers direction values — leave the markets section untouched
-- If a field is already well-written and within limits, leave it exactly as is
+- Do not reorder anything
+- NEVER change price_moves, direction, ticker, magnitude, reason fields
+- NEVER change market tickers or direction values
 
-Return the COMPLETE brief JSON with the same structure, just with tightened text in the fields above.`;
+Return the COMPLETE brief JSON with the same structure. Every text field must be shorter than the input.`;
 
 export const REWRITE_SYSTEM = `You are rewriting specific stories in Anqi's news digest to fix quality issues.
 Fix ONLY what is flagged. Return JSON: { story_index, updated_what, updated_mechanism: [{label, steps: [{text, type}]}], updated_so_what: string[] }
