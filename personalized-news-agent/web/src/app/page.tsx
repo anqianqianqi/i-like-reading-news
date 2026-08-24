@@ -20,6 +20,7 @@ export default function Home() {
   const [readerType, setReaderType]     = useState("engineer");
   const [reformatting, setReformatting] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
+  const [briefSource, setBriefSource]   = useState<"raw" | "balanced">("balanced"); // which Blob version to format
 
   const READER_TYPES = [
     { id: "engineer",    label: "🔧 Engineer",    desc: "Causal chains + invest angle" },
@@ -111,9 +112,9 @@ export default function Home() {
       const blobRes = await fetch(`/api/brief?date=${selectedDate}`);
       let data: unknown = null;
       if (blobRes.ok) {
-        const { brief } = await blobRes.json();
-        data = brief;
-        addLog(`✓ Loaded from Blob storage (${selectedDate}).`);
+        const { brief, brief_balanced } = await blobRes.json();
+        data = briefSource === "balanced" ? (brief_balanced || brief) : brief;
+        addLog(`✓ Loaded ${briefSource} from Blob (${selectedDate}).`);
       } else {
         // Fall back to static fixture
         const fixRes = await fetch("/api/fixture");
@@ -331,7 +332,7 @@ export default function Home() {
           ))}
         </select>
 
-        {/* Date picker for Blob data */}
+        {/* Date picker + source selector */}
         <input
           type="date"
           value={selectedDate}
@@ -343,6 +344,24 @@ export default function Home() {
             cursor: "pointer"
           }}
         />
+        <div style={{ display: "flex", gap: 4 }}>
+          {(["raw", "balanced"] as const).map(src => (
+            <button
+              key={src}
+              onClick={() => setBriefSource(src)}
+              style={{
+                padding: "7px 10px", fontSize: 11, fontWeight: 700, borderRadius: 6,
+                border: "1.5px solid",
+                background: briefSource === src ? "#2d3436" : "#fff",
+                color: briefSource === src ? "#fff" : "#636e72",
+                borderColor: briefSource === src ? "#2d3436" : "#e8e4e0",
+                cursor: "pointer", textTransform: "capitalize"
+              }}
+            >
+              {src}
+            </button>
+          ))}
+        </div>
 
         <button onClick={previewFixture} disabled={status === "running"} style={{
           background: "#fff", color: "#6c5ce7", border: "2px solid #6c5ce7",

@@ -249,8 +249,9 @@ export async function GET(req: NextRequest) {
   const date = req.nextUrl.searchParams.get("date") || todayKey();
   const brief = await loadJSON(date, "brief_final.json");
   if (!brief) return NextResponse.json({ exists: false }, { status: 404 });
+  const brief_balanced = await loadJSON(date, "brief_balanced.json");
   const critique = await loadJSON(date, "critique.json");
-  return NextResponse.json({ exists: true, brief, critique, date });
+  return NextResponse.json({ exists: true, brief, brief_balanced: brief_balanced || brief, critique, date });
 }
 
 export async function DELETE(req: NextRequest) {
