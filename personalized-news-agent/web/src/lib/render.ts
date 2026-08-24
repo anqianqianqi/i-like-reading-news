@@ -240,9 +240,18 @@ function renderPriceMoves(
   };
   const DIR_SYM: Record<string, string> = { up: "↑", dn: "↓", watch: "~" };
 
+  // Normalize direction — LLMs sometimes output variants like "down", "bearish", "negative"
+  function normalizeDir(raw: string): "up" | "dn" | "watch" {
+    const d = (raw || "").toLowerCase().trim();
+    if (d === "up" || d === "bullish" || d === "positive" || d === "bull" || d === "green") return "up";
+    if (d === "dn" || d === "down" || d === "bearish" || d === "negative" || d === "bear" || d === "red") return "dn";
+    return "watch";
+  }
+
   const cards = price_moves.map(m => {
-    const c = DIR_COLORS[m.direction] || DIR_COLORS.watch;
-    const sym = DIR_SYM[m.direction] || "~";
+    const dir = normalizeDir(m.direction);
+    const c = DIR_COLORS[dir];
+    const sym = DIR_SYM[dir];
     const mag = m.magnitude || sym;
     const companyHtml = m.company
       ? `<span style="opacity:.65;flex-shrink:0;color:${c.dimText};font-size:11px;"> / ${esc(m.company)}</span>`
