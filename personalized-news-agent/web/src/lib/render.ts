@@ -544,7 +544,7 @@ padding-left:16px;position:relative;}
 footer{margin-top:32px;text-align:center;color:var(--m);font-size:11px;
 padding:12px;border-top:1px solid var(--bd);}
 .pmoves{display:flex;flex-direction:column;gap:4px;margin:10px 0;}
-.pm{display:flex;align-items:center;gap:6px;border-radius:6px;padding:5px 10px;font-size:12px;}
+.pm{display:flex;align-items:center;gap:6px;border-radius:6px;padding:5px 10px;font-size:12px;font-family:system-ui,sans-serif;}
 .pm-up{background:#dcfce7;border:1px solid #bbf7d0;}
 .pm-dn{background:#fce7f3;border:1px solid #fbcfe8;}
 .pm-watch{background:#fff3cd;border:1px solid #fde68a;}
@@ -608,11 +608,22 @@ export function renderStoryteller(data: any): string {
       return applyHighlights(esc(text), hl);
     }
 
+    // Break narrative into sentences for better readability — avoid wall of text
+    function formatNarrative(text: string): string {
+      const processed = processNarrative(text);
+      // Split on sentence boundaries and wrap each in a span with spacing
+      const sentences = processed
+        .split(/(?<=[.!?])\s+/)
+        .filter(s => s.trim().length > 0);
+      if (sentences.length <= 2) return `<p class="narrative">${processed}</p>`;
+      return sentences.map(s => `<p class="narrative" style="margin-bottom:8px;">${s}</p>`).join("");
+    }
+
     const soWhatItems = (story.so_what || []).map(b =>
       `<div class="so-what-item">${processNarrative(b)}</div>`
     ).join("");
 
-    // Price moves — keep the same compact cards
+    // Price moves — same colored cards as engineer
     const DIR_CLS: Record<string, string> = { up: "pm-up", dn: "pm-dn", watch: "pm-watch" };
     const DIR_SYM: Record<string, string> = { up: "↑", dn: "↓", watch: "watch" };
     let movesHtml = "";
@@ -623,16 +634,16 @@ export function renderStoryteller(data: any): string {
         const magStr = m.magnitude ? `<span class="pm-mag">${esc(m.magnitude)}</span>` : `<span class="pm-mag">${sym}</span>`;
         const company = m.company ? `<span class="pm-sep">/</span><span class="pm-company">${esc(m.company)}</span>` : "";
         const why = m.reason ? `<span class="pm-why">${esc(m.reason)}</span>` : "";
-        return `<div class="pm ${dc}" style="font-family:system-ui,sans-serif;font-size:12px;"><span class="pm-tick">${esc(m.ticker)}</span>${company} ${magStr} ${why}</div>`;
+        return `<div class="pm ${dc}"><span class="pm-tick">${esc(m.ticker)}</span>${company} ${magStr} ${why}</div>`;
       }).join("");
-      movesHtml = `<div class="pmoves" style="margin:10px 0;">${cards}</div>`;
+      movesHtml = `<div class="pmoves" style="margin:12px 0;">${cards}</div>`;
     }
 
     sections.push(`
 <div class="sec">
   <div class="story-title">${i + 1}. ${esc(story.title)}</div>
   <div class="story">
-    <p class="narrative">${processNarrative(narrativeText)}</p>
+    ${formatNarrative(narrativeText)}
     ${whyText ? `<div class="why-prose">${processNarrative(whyText)}</div>` : ""}
     ${movesHtml}
     <div class="so-what-st">
