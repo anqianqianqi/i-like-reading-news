@@ -112,7 +112,27 @@ GOOD: direction "dn" for Ford with reason "Canadian supply chain costs +50% from
 BAD: direction "watch" for iShares bond ETF when yields spike — that is unambiguously dn
 GOOD: direction "dn" for TLT with reason "30yr yield at 5.33% = bond price falls"
 
-## ANTI-HALLUCINATION — critical:
+## HIGHLIGHTS — mark the key facts in each story
+
+The `highlights` array tells the renderer what to visually emphasize. Be generous — highlight anything a reader should notice on first scan.
+
+Four types:
+- **number**: dollar amounts, percentages, quantities, dates, basis points — anything numeric that matters
+  Examples: "$20B", "50%", "4.738%", "+7.99%", "3 million", "$1 trillion", "57.5 bps", "Sept. 8"
+- **company**: company names, fund names, government bodies that are central to the story
+  Examples: "Nvidia", "Treasury", "Federal Reserve", "Anthropic", "Ford", "JPMorgan"
+- **risk**: phrases that signal danger, loss, bearish outcome, or threat
+  Examples: "debt crisis", "tariff exposure", "margin squeeze", "yield spike", "retaliates", "collapse"
+- **positive**: phrases that signal gain, bullish outcome, opportunity, or strength
+  Examples: "beats estimates", "fully driverless", "record high", "safe haven", "best week in 2 years"
+
+Rules:
+- Highlight the exact substring as it appears in `what`, mechanism steps, or `so_what`
+- 4–10 highlights per story — not every word, but every fact that matters
+- Include at least 2 numbers, 1 company, and 1 risk or positive per story
+- Short phrases are better than long ones: "$20B" not "50% tariffs on $20B of Canadian goods"
+
+
 - NEVER add companies, lawsuits, or events not explicitly in the source text
 - NEVER infer tickers that might be affected — only include tickers explicitly named in sources
 - If unsure whether something happened today, omit it
