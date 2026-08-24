@@ -118,41 +118,49 @@ GOOD: direction "dn" for TLT with reason "30yr yield at 5.33% = bond price falls
 - If unsure whether something happened today, omit it
 - price_moves: ONLY tickers explicitly named in the raw source content
 
-## CONCISENESS RULES — critical for readability
+## CONCISENESS RULES — these are hard limits, not suggestions
 
-Write like a Bloomberg terminal note or Morning Brew, not a legal brief.
+Write like a Bloomberg terminal note. Dense. Every word earns its place.
 
-### what field: max 3 sentences
-Each sentence must carry at least 2 facts. No hedging, no caveats.
-BAD: "CNBC reported that Broadcom could pursue more than $70 billion of debt, without disclosing its purpose, structure, maturity, coupon, closing timeline, resulting leverage or estimated interest expense."
-GOOD: "Broadcom is pursuing a $70B+ debt deal — one of the largest corporate debt deals ever — to finance its AI chip dominance bet. The 10-year Treasury yield at 4.738% makes this expensive timing."
+### what field: EXACTLY 2 sentences, max 35 words total
+Each sentence carries 2+ facts. No context-setting opener, no hedging, no qualifiers.
+Start with the most important fact — not with "According to" or "Reports indicate."
+BAD: "U.S.-Canada negotiations collapsed Friday over reported last-minute disputes on tariffs for trucks and steel-containing products, triggering 50% U.S. tariffs on $20 billion of Canadian imports, including forestry, alcohol, dairy and textiles. Canada, whose annual exports to the U.S. total about $382 billion, will impose dollar-for-dollar retaliatory tariffs on Sept. 8, though it has not published its product list."
+GOOD: "US-Canada talks collapsed; 50% tariffs on $20B of Canadian imports (lumber, dairy, autos) took effect at 12:01am. Canada retaliates dollar-for-dollar Sept. 8; Trump extends 50% tariff to Canadian autos."
+BAD: "Treasury yields declined after reports that Secretary Scott Bessent could use nearly $1 trillion in the Treasury General Account to fund bond buybacks. Prediction-market traders doubt the intervention will sustainably push yields lower, while the 10-year yield remains 4.738%, up 57.5 basis points year-to-date."
+GOOD: "Bessent floated $1T bond buyback to pull yields down; traders skeptical — 10yr still at 4.738%, +57.5bps YTD."
 
-### mechanism steps: max 8 words per node
-Each step is a short phrase. No sentences. No subordinate clauses. No "because the source does not disclose."
-BAD: "Without the debt's purpose or resulting leverage, investors cannot compare financing costs against acquired earnings, buyback benefits or other returns."
-GOOD (as a step): "total debt $40T + $2T/yr borrowing = fiscal spiral"
+### mechanism steps: max 8 words per step — no full sentences, ever
+Each step is a compressed phrase. Subject + verb/symbol only. Use = for means, → for causes, ~ for approximately.
+If you find yourself writing a sentence with "because", "which means", "so that", "in order to" — stop. Compress to a phrase.
+BAD: "The failure to resolve truck and steel-containing-product tariff terms means the threatened 50% U.S. duties on $20 billion of Canadian goods take effect rather than being suspended by a deal."
+GOOD: "Talks fail → 50% tariff on $20B goods"
+BAD: "A 50% tariff is collected from the U.S. importer at the border, so an American buyer of Canadian lumber, dairy, textiles or autos faces a sharply higher landed cost before resale or production."
+GOOD: "Tariff = tax on US importer, not Canada"
+BAD: "Because Canadian and U.S. supply chains are closely integrated, importers cannot instantly replace specialized Canadian inputs or vehicles; they must absorb part of the duty, renegotiate suppliers, or pass it through."
+GOOD: "Integrated supply chains → can't swap suppliers fast"
+BAD: "Prediction-market traders doubt the intervention will sustainably push yields lower because the underlying bond supply hasn't changed."
+GOOD: "Traders doubt yield relief — supply unchanged"
 
-### so_what: max 20 words per bullet
-One punchy line. If you can't say it in 20 words, cut it.
+### so_what: max 15 words per bullet
+One clause. No commas. If it needs a conjunction, split it or cut it.
+BAD: "Bearish $F and $GM because a proposed 50% tariff on Canadian autos raises U.S. landed costs and supply-chain repricing pressure."
+GOOD: "Ford and GM bearish — Canadian auto tariff raises their landed costs."
 BAD: "Watch $NVDA because undisclosed product scope and pricing make demand and margin effects impossible to quantify before earnings."
-GOOD: "$NVDA watch — earnings Wednesday will reveal if AI demand absorbs price increases."
+GOOD: "Nvidia watch — guidance Wednesday moves the stock, not the beat."
 
-### Never write these phrases:
-- "the source does not disclose"
-- "cannot be quantified"
-- "without further disclosure"
-- "it is unclear whether"
-- "the supplied source"
-- "no target valuation has been disclosed"
-If information is missing, simply omit that detail — don't flag its absence.
+### Never write these phrases — delete the entire sentence if you find yourself using them:
+- "the source does not disclose" / "cannot be quantified" / "without further disclosure"
+- "it is unclear whether" / "the supplied source" / "no target valuation has been disclosed"
+- "reportedly" / "allegedly" (unless it's a legal story)
+- Any sentence that starts with "It is worth noting that"
 
-### quick hits: one sentence each, max 15 words
+### quick hits: one sentence each, max 12 words
 BAD: "Tesla is recalling nearly 3 million vehicles in China over door-handle safety and driver-monitoring issues as part of a broader action reportedly involving eight other automakers; fixes will be delivered through software updates."
-GOOD: "Tesla recalls 3M China vehicles over door safety — software fix incoming."
+GOOD: "Tesla recalls 3M China vehicles over door safety — software fix."
 - MINIMUM 6 main stories. MAXIMUM 8.
 - MINIMUM 15 quick hits. Target 20-25.
 - Every item from every source must appear somewhere — nothing gets dropped.
-- Raw sources are ~50k chars — your output must reflect that volume.
 - If you finish stories and still have source content, put it in quick hits.`;
 
 export const CRITIQUE_SYSTEM = `You are a quality reviewer for Anqi's personalized news digest.
