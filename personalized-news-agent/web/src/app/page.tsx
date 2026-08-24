@@ -53,7 +53,7 @@ export default function Home() {
     }
   }
 
-  // On mount: check if today's brief already exists in Blob
+  // On mount: check Blob first, then localStorage fallback
   useEffect(() => {
     (async () => {
       try {
@@ -65,20 +65,38 @@ export default function Home() {
           setHtmlBalanced(renderEngineer(brief_balanced || brief));
           setHasRaw(true);
           setCached(true);
-          addLog("✓ Loaded today's brief from storage.");
+          addLog("✓ Loaded today's brief from Blob storage.");
           setStatus("done");
-        } else {
-          // Check if at least raw brief exists (for Re-balance button)
-          const balRes = await fetch("/api/brief/balance");
-          if (balRes.ok) {
-            const { exists } = await balRes.json();
-            setHasRaw(exists);
-          }
-          setStatus("idle");
+          return;
         }
-      } catch {
-        setStatus("idle");
-      }
+      } catch { /* Blob unavailable */ }
+
+      // Fallback: check localStorage
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        const saved = localStorage.getItem(`brief:${today}`);
+        if (saved) {
+          const brief = JSON.parse(saved);
+          setBriefData(brief);
+          setHtml(renderEngineer(brief));
+          setHtmlBalanced(renderEngineer(brief));
+          setHasRaw(true);
+          setCached(true);
+          addLog("✓ Loaded today's brief from browser cache.");
+          setStatus("done");
+          return;
+        }
+      } catch { /* ignore */ }
+
+      // Check if raw brief exists for Re-balance button
+      try {
+        const balRes = await fetch("/api/brief/balance");
+        if (balRes.ok) {
+          const { exists } = await balRes.json();
+          setHasRaw(exists);
+        }
+      } catch { /* ignore */ }
+      setStatus("idle");
     })();
   }, []);
 
@@ -199,6 +217,10 @@ export default function Home() {
             evtSource.close();
             if (msg.brief) {
               setBriefData(msg.brief);
+              // Save to localStorage as fallback when Blob isn't available
+              try {
+                localStorage.setItem(`brief:${new Date().toISOString().slice(0,10)}`, JSON.stringify(msg.brief));
+              } catch { /* ignore */ }
               const renderFn = readerType === "storyteller" ? renderStoryteller : renderEngineer;
               setHtml(renderFn(msg.brief));
               setHtmlBalanced(renderFn((msg as {brief_balanced?: unknown}).brief_balanced || msg.brief));
