@@ -161,7 +161,7 @@ const BRIEF_SCHEMA = {
           title:   { type: "string" },
           sources: { type: "array", items: { type: "string" } },
           what:    { type: "string" },
-          narrative: { type: "string", description: "Storyteller version of 'what'. Lead with the human angle — who did what, what was at stake. Write like a good news article opening: characters, drama, stakes. Include key facts in narrative form. 2-3 sentences." },
+          narrative: { type: "string", description: "Plain-English version of 'what' — same facts as the engineer 'what' field but written as complete, readable sentences without arrows or compressed notation. No drama, no narrative framing. Just: what happened, who did it, what the key numbers are. A smart person with no finance background should read this and immediately understand the event. 2-3 sentences max." },
           mechanism: {
             type: "array",
             items: {
@@ -186,7 +186,7 @@ const BRIEF_SCHEMA = {
             }
           },
           so_what:        { type: "array", items: { type: "string" }, minItems: 2, maxItems: 3 },
-          narrative_why:  { type: "string", description: "Storyteller version of the mechanism. Explain in plain connected prose — no arrows, no step labels. Use analogies. 2-3 sentences a curious non-expert would find satisfying." },
+          narrative_why:  { type: "string", description: "Plain-English explanation of WHY it happened and what it means — no arrows, no step labels, no jargon without explanation. 2-3 connected sentences: (1) the key mechanism the reader might not know, (2) what consequence follows. Prioritize the non-obvious insight. Example: 'The part most people miss: it is American companies, not Canadian ones, that pay this tariff at the border. So US manufacturers using Canadian steel suddenly face a 50% cost increase — they either absorb it as lower profit or pass it to consumers as higher prices.'" },
           price_moves: {
             type: "array",
             items: {

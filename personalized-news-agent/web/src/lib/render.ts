@@ -573,7 +573,7 @@ function renderNarrativeWhy(rawText: string): string {
   }).join("\n");
 
   return `<div class="why-block">
-  <span class="why-label">Why it happened</span>
+  <span class="why-label">How it works</span>
   ${sentenceHtml}
 </div>`;
 }
@@ -588,9 +588,9 @@ export function renderStoryteller(data: any): string {
   sections.push(`
 <div class="hero">
   <div class="date">${today.toUpperCase()}</div>
-  <h1>Today's Stories</h1>
+  <h1>Today's Brief</h1>
   <p style="color:#78716c;font-size:13px;margin-top:4px;font-family:system-ui,sans-serif;">
-    What happened, why it matters, what it means for you
+    What happened · why it matters · plain English
   </p>
 </div>`);
 
@@ -659,7 +659,7 @@ export function renderStoryteller(data: any): string {
     ${movesHtml}
     ${whyBlockHtml}
     <div class="so-what-st">
-      <span class="so-what-label">Why it matters</span>
+      <span class="so-what-label">What it means</span>
       ${soWhatItems}
     </div>
   </div>
