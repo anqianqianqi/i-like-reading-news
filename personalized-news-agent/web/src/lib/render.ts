@@ -526,8 +526,9 @@ line-height:1.75;margin-bottom:10px;font-style:italic;}
 .so-what-st{border-top:1px solid var(--bd);padding-top:10px;margin-top:10px;}
 .so-what-label{font-size:10px;font-weight:700;text-transform:uppercase;
 letter-spacing:.6px;color:var(--a);margin-bottom:6px;display:block;}
-.so-what-item{font-size:13px;line-height:1.6;margin-bottom:5px;
-padding-left:12px;border-left:2px solid var(--a);}
+.so-what-item{font-size:13px;line-height:1.6;margin-bottom:6px;
+display:flex;align-items:flex-start;gap:8px;}
+.so-icon{flex-shrink:0;font-size:14px;}
 .mkts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
 .mkt{background:var(--card);border:1px solid var(--bd);border-radius:8px;
 padding:8px 10px;text-align:center;}
@@ -605,25 +606,31 @@ export function renderStoryteller(data: any): string {
     const whyText = story.narrative_why || "";
 
     function processNarrative(text: string): string {
-      return applyHighlights(esc(text), hl);
+      // Apply highlights AND inject inline colored spans for numbers/companies
+      let t = esc(text);
+      // Apply explicit highlights from the data
+      t = applyHighlights(t, hl);
+      // Auto-highlight numbers not already highlighted
+      t = t.replace(/\$[\d,.]+[BMK]?/g, m => `<span class="hn">${m}</span>`);
+      t = t.replace(/\b\d+[.,]?\d*%\b/g, m => `<span class="hn">${m}</span>`);
+      return t;
     }
 
-    // Break narrative into sentences for better readability — avoid wall of text
+    // Split narrative into paragraphs — each sentence on its own line with space
     function formatNarrative(text: string): string {
       const processed = processNarrative(text);
-      // Split on sentence boundaries and wrap each in a span with spacing
-      const sentences = processed
-        .split(/(?<=[.!?])\s+/)
-        .filter(s => s.trim().length > 0);
-      if (sentences.length <= 2) return `<p class="narrative">${processed}</p>`;
-      return sentences.map(s => `<p class="narrative" style="margin-bottom:8px;">${s}</p>`).join("");
+      const sentences = processed.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 10);
+      if (sentences.length <= 1) return `<p class="narrative">${processed}</p>`;
+      return sentences.map(s => `<p class="narrative">${s}</p>`).join("\n");
     }
 
-    const soWhatItems = (story.so_what || []).map(b =>
-      `<div class="so-what-item">${processNarrative(b)}</div>`
-    ).join("");
+    // So what — each bullet as a distinct visual card
+    const soWhatItems = (story.so_what || []).map((b, idx) => {
+      const icons = ["💡", "📈", "👀"];
+      return `<div class="so-what-item"><span class="so-icon">${icons[idx] || "•"}</span><span>${processNarrative(b)}</span></div>`;
+    }).join("");
 
-    // Price moves — same colored cards as engineer
+    // Price moves — colored cards, identical to engineer
     const DIR_CLS: Record<string, string> = { up: "pm-up", dn: "pm-dn", watch: "pm-watch" };
     const DIR_SYM: Record<string, string> = { up: "↑", dn: "↓", watch: "watch" };
     let movesHtml = "";
@@ -636,7 +643,7 @@ export function renderStoryteller(data: any): string {
         const why = m.reason ? `<span class="pm-why">${esc(m.reason)}</span>` : "";
         return `<div class="pm ${dc}"><span class="pm-tick">${esc(m.ticker)}</span>${company} ${magStr} ${why}</div>`;
       }).join("");
-      movesHtml = `<div class="pmoves" style="margin:12px 0;">${cards}</div>`;
+      movesHtml = `<div class="pmoves">${cards}</div>`;
     }
 
     sections.push(`
@@ -644,8 +651,8 @@ export function renderStoryteller(data: any): string {
   <div class="story-title">${i + 1}. ${esc(story.title)}</div>
   <div class="story">
     ${formatNarrative(narrativeText)}
-    ${whyText ? `<div class="why-prose">${processNarrative(whyText)}</div>` : ""}
     ${movesHtml}
+    ${whyText ? `<div class="why-prose">${processNarrative(whyText)}</div>` : ""}
     <div class="so-what-st">
       <span class="so-what-label">Why it matters</span>
       ${soWhatItems}
