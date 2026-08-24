@@ -351,6 +351,17 @@ export function renderEngineer(data: any): string {
       return t;
     }
 
+    // process() with auto-number highlighting — used for so_what bullets
+    function processWithAutoHL(text: string): string {
+      let t = esc(text);
+      // Auto-highlight first so explicit highlights don't double-wrap
+      t = t.replace(/\$[\d,.]+[BMKbmk]?(?:\s+(?:trillion|billion|million|thousand))?/gi,
+        m => `<span class="hn">${m}</span>`);
+      t = t.replace(/\b\d+[.,]?\d*%/g, m => `<span class="hn">${m}</span>`);
+      t = injectGlossaryLinks(t, gl);
+      return t;
+    }
+
     const srcMeta: Record<string, [string, string]> = {
       MB: ["Morning Brew","b-mb"], CNBC: ["CNBC","b-cn"], Reuters: ["Reuters","b-rt"],
       TLDR: ["TLDR","b-tl"], Rundown: ["Rundown AI","b-rd"], ITBrew: ["IT Brew","b-ib"], SA: ["SA","b-sa"]
@@ -367,7 +378,7 @@ export function renderEngineer(data: any): string {
 
     // So what bullets
     const bullets = (story.so_what || []).map((b: string) =>
-      `<span class="sowhat-line"><span class="swbullet"></span><span>${process(b)}</span></span>`
+      `<span class="sowhat-line"><span class="swbullet"></span><span>${processWithAutoHL(b)}</span></span>`
     ).join("\n");
 
     sections.push(`
