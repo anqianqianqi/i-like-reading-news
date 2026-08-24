@@ -130,7 +130,7 @@ Four types:
   Examples: "fully driverless", "best week in 2 years", "safe haven bid", "dollar-for-dollar hedge"
 
 Rules:
-- Match the exact substring as it appears in `what`, mechanism steps, or `so_what`
+- Match the exact substring as it appears in the "what" field, mechanism steps, or "so_what" bullets
 - 5–8 highlights per story — not every word, but every fact that drives your reasoning
 - Prefer the most specific phrase: "$20B" over "billions", "4.738%" over "high yield"
 - Short phrases are better than long ones
