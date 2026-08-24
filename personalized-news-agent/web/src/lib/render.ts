@@ -236,7 +236,7 @@ function renderPriceMoves(
   const DIR_COLORS: Record<string, { bg: string; border: string; text: string; dimText: string }> = {
     up:    { bg: "#dcfce7", border: "#bbf7d0", text: "#14532d", dimText: "#166534" },
     dn:    { bg: "#fce7f3", border: "#fbcfe8", text: "#831843", dimText: "#9d174d" },
-    watch: { bg: "#fff3cd", border: "#fde68a", text: "#713f12", dimText: "#92400e" },
+    watch: { bg: "#f3e8ff", border: "#d8b4fe", text: "#6b21a8", dimText: "#7c3aed" },
   };
   const DIR_SYM: Record<string, string> = { up: "↑", dn: "↓", watch: "~" };
 
