@@ -506,7 +506,7 @@ display:inline;padding-left:0;border-left:none;}
 .wt-tag{font-style:normal;font-size:9px;font-weight:700;text-transform:uppercase;
 letter-spacing:.4px;padding:1px 5px;border-radius:3px;margin-right:5px;
 vertical-align:middle;font-family:system-ui,sans-serif;}
-.wt-tag-backdrop{background:#fef3c7;color:#92400e;}
+.wt-tag-backdrop{background:#e0f2fe;color:#0c4a6e;}
 .wt-tag-mechanism{background:#f1f5f9;color:#475569;}
 .wt-tag-result{background:#dcfce7;color:#14532d;}
 .so-what-st{background:var(--al);border-left:3px solid var(--a);
