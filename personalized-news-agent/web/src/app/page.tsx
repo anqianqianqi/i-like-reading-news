@@ -19,6 +19,7 @@ export default function Home() {
   const [model, setModel]               = useState("gpt-4.1");
   const [readerType, setReaderType]     = useState("engineer");
   const [reformatting, setReformatting] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
 
   const READER_TYPES = [
     { id: "engineer",    label: "🔧 Engineer",    desc: "Causal chains + invest angle" },
@@ -106,13 +107,13 @@ export default function Home() {
     setLog([`Loading saved brief as ${readerType}...`]);
     setHtml(""); setError("");
     try {
-      // Try Blob first (today's generated brief)
-      const blobRes = await fetch("/api/brief");
+      // Try Blob first (use selectedDate)
+      const blobRes = await fetch(`/api/brief?date=${selectedDate}`);
       let data: unknown = null;
       if (blobRes.ok) {
         const { brief } = await blobRes.json();
         data = brief;
-        addLog("✓ Loaded from Blob storage.");
+        addLog(`✓ Loaded from Blob storage (${selectedDate}).`);
       } else {
         // Fall back to static fixture
         const fixRes = await fetch("/api/fixture");
@@ -329,6 +330,19 @@ export default function Home() {
             <option key={m.id} value={m.id}>{m.label}</option>
           ))}
         </select>
+
+        {/* Date picker for Blob data */}
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={e => setSelectedDate(e.target.value)}
+          max={new Date().toISOString().slice(0, 10)}
+          style={{
+            border: "1.5px solid #e8e4e0", borderRadius: 8, padding: "9px 10px",
+            fontSize: 13, background: "#fff", color: "#2d3436", fontFamily: "inherit",
+            cursor: "pointer"
+          }}
+        />
 
         <button onClick={previewFixture} disabled={status === "running"} style={{
           background: "#fff", color: "#6c5ce7", border: "2px solid #6c5ce7",
