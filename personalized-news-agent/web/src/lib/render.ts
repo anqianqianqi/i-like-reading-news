@@ -262,7 +262,8 @@ function renderPriceMoves(
     const dir = normalizeDir(m.direction, m.magnitude, m.reason);
     const c = DIR_COLORS[dir];
     const sym = DIR_SYM[dir];
-    const mag = m.magnitude || sym;
+    // Always show the directional symbol, then magnitude if it adds info
+    const magDisplay = m.magnitude ? `${sym} ${esc(m.magnitude)}` : sym;
     const companyHtml = m.company
       ? `<span style="opacity:.65;flex-shrink:0;color:${c.dimText};font-size:11px;"> / ${esc(m.company)}</span>`
       : "";
@@ -273,7 +274,7 @@ function renderPriceMoves(
     return `<div style="display:flex;align-items:center;gap:5px;border-radius:6px;padding:5px 10px;font-size:12px;font-family:system-ui,sans-serif;background:${c.bg};border:1px solid ${c.border};margin-bottom:4px;min-width:0;">
   <span style="font-weight:800;font-family:monospace;flex-shrink:0;color:${c.text};">${esc(m.ticker)}</span>
   ${companyHtml}
-  <span style="font-weight:700;flex-shrink:0;color:${c.text};margin-left:2px;">${esc(mag)}</span>
+  <span style="font-weight:700;flex-shrink:0;color:${c.text};margin-left:2px;">${magDisplay}</span>
   ${whyHtml}
 </div>`;
   }).join("");
