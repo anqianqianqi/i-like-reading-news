@@ -638,10 +638,9 @@ export function renderStoryteller(data: any): string {
       return sentences.map(s => `<p class="narrative">${s}</p>`).join("\n");
     }
 
-    // So what — emoji bullets
-    const soWhatItems = (story.so_what || []).map((b, idx) => {
-      const icons = ["💡", "📈", "👀"];
-      return `<div class="so-what-item"><span class="so-icon">${icons[idx] || "•"}</span><span>${processNarrative(b)}</span></div>`;
+    // So what — plain bullets, no emoji
+    const soWhatItems = (story.so_what || []).map((b) => {
+      return `<div class="so-what-item"><span class="so-icon">—</span><span>${processNarrative(b)}</span></div>`;
     }).join("");
 
     // Price moves — inline styles via shared renderer
