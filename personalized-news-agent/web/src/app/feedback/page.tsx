@@ -17,6 +17,14 @@ const TOPIC_SUGGESTIONS = [
   "Defense & aerospace",
 ];
 
+const IMPROVEMENT_SUGGESTIONS = [
+  "Explanations too technical", "Too much jargon", "Stories too long",
+  "Need more context / background", "Causal chains hard to follow",
+  "\"So what\" not actionable enough", "Too many quick hits",
+  "Needs simpler analogies", "Missing the big picture",
+  "Too finance-heavy, not enough tech",
+];
+
 interface Bubble {
   id: number; text: string; x: number; size: number;
   speed: number; drift: number; delay: number; hue: number;
@@ -250,6 +258,39 @@ export default function FeedbackPage() {
               </div>
 
               <form onSubmit={handleSubmit}>
+                {/* Improvement pills */}
+                <div style={{ marginBottom: 22 }}>
+                  <p style={{
+                    fontSize: 12, fontWeight: 700, color: "#2d3436",
+                    marginBottom: 10, letterSpacing: "0.2px",
+                  }}>
+                    What could be easier to understand? <span style={{ color: "#b2bec3", fontWeight: 400 }}>(pick any)</span>
+                  </p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+                    {IMPROVEMENT_SUGGESTIONS.map(t => {
+                      const on = selected.includes(t);
+                      return (
+                        <button
+                          key={t}
+                          type="button"
+                          className="topic-pill"
+                          onClick={() => toggleTopic(t)}
+                          style={{
+                            padding: "6px 13px", borderRadius: 20, fontSize: 12,
+                            fontWeight: on ? 700 : 500,
+                            background: on ? "linear-gradient(135deg, #ef4444, #f59e0b)" : "rgba(239,68,68,0.06)",
+                            color: on ? "#fff" : "#b45309",
+                            border: `1.5px solid ${on ? "transparent" : "rgba(239,68,68,0.20)"}`,
+                            boxShadow: on ? "0 2px 10px rgba(239,68,68,0.25)" : "none",
+                          }}
+                        >
+                          {on ? "✓ " : ""}{t}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {/* Topic request pills */}
                 <div style={{ marginBottom: 22 }}>
                   <p style={{
