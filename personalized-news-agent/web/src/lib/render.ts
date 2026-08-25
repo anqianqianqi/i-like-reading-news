@@ -504,7 +504,13 @@ border-radius:7px;font-family:system-ui,sans-serif;}
 .b-rd{background:#eff6ff;color:#1e40af;} .b-ib{background:#e0f2fe;color:#0c4a6e;}
 .b-sa{background:#ecfdf5;color:#065f46;} .b-multi{background:#f1f5f9;color:#334155;}
 .story{margin-bottom:8px;}
-.narrative{font-size:15px;line-height:1.8;margin-bottom:8px;color:var(--text);}
+/* First sentence of story — the scene-setter, slightly larger + italic */
+.narrative-hook{font-size:16px;line-height:1.8;font-style:italic;
+color:#44403c;margin-bottom:6px;}
+.narrative{font-size:15px;line-height:1.8;margin-bottom:6px;color:var(--text);}
+/* Key phrase highlight — bold + warm underline, no color box */
+.st-key{font-weight:700;text-decoration:underline;
+text-decoration-color:var(--a);text-underline-offset:3px;}
 .why-block{background:var(--al);border-left:3px solid var(--a);
 border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:10px;
 line-height:2;}
@@ -514,18 +520,12 @@ font-family:system-ui,sans-serif;}
 .why-sentence{font-size:14px;line-height:1.75;font-style:italic;
 display:inline;padding-left:0;border-left:none;}
 .wt-backdrop{} .wt-mechanism{} .wt-result{}
-.wt-tag{font-style:normal;font-size:9px;font-weight:700;text-transform:uppercase;
-letter-spacing:.4px;padding:1px 5px;border-radius:3px;margin-right:5px;
-vertical-align:middle;font-family:system-ui,sans-serif;}
-.wt-tag-backdrop{background:#e0f2fe;color:#0c4a6e;}
-.wt-tag-mechanism{background:#f1f5f9;color:#475569;}
-.wt-tag-result{background:#dcfce7;color:#14532d;}
 .so-what-st{background:var(--al);border-left:3px solid var(--a);
 border-radius:0 8px 8px 0;padding:12px 16px;margin-top:12px;}
 .so-what-label{font-size:10px;font-weight:700;text-transform:uppercase;
 letter-spacing:.6px;color:var(--a);margin-bottom:8px;display:block;
 font-family:system-ui,sans-serif;}
-.so-what-item{font-size:13px;line-height:1.6;margin-bottom:6px;
+.so-what-item{font-size:13px;line-height:1.65;margin-bottom:6px;
 display:flex;align-items:flex-start;gap:8px;}
 .so-icon{flex-shrink:0;font-size:13px;color:var(--a);font-family:system-ui,sans-serif;}
 .mkts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
@@ -538,8 +538,6 @@ font-family:system-ui,sans-serif;}
 .up{color:#16a34a;} .dn{color:#dc2626;}
 .note{background:var(--al);border-left:3px solid var(--a);
 border-radius:0 6px 6px 0;padding:8px 12px;font-size:14px;margin-top:8px;}
-.hn{background:#fef9c3;color:#713f12;border-radius:3px;padding:0 3px;font-weight:700;font-style:normal;}
-.hc{background:#e0f2fe;color:#0c4a6e;border-radius:3px;padding:0 3px;font-weight:700;font-style:normal;}
 .hits{margin-top:24px;}
 .hits ul{padding-left:0;list-style:none;}
 .hits li{font-size:13px;line-height:1.6;margin-bottom:8px;
@@ -551,20 +549,10 @@ padding:12px;border-top:1px solid var(--bd);font-family:system-ui,sans-serif;}
 .mkts{grid-template-columns:repeat(2,1fr);}}
 `;
 
-// Split narrative_why into sentences and tag them as backdrop / mechanism / result.
-// Works on 2-3 sentence prose: first = backdrop, middle = mechanism, last = result.
+// Split narrative_why into sentences — rendered as connected italic prose, no type tags.
 function renderNarrativeWhy(rawText: string): string {
   if (!rawText) return "";
 
-  // Auto-highlight numbers and dollar amounts in the text
-  function autoHL(t: string): string {
-    // Escape first, then inject highlights — careful not to double-escape
-    t = t.replace(/\$[\d,.]+[BMKbmk]?(?:\s+(?:trillion|billion|million|thousand))?/gi, m => `<span class="hn">${m}</span>`);
-    t = t.replace(/\b\d+[.,]?\d*%/g, m => `<span class="hn">${m}</span>`);
-    return t;
-  }
-
-  // Split on sentence boundaries
   const raw = esc(rawText);
   const sentences = raw
     .split(/(?<=[.!?])\s+/)
@@ -573,31 +561,16 @@ function renderNarrativeWhy(rawText: string): string {
 
   if (sentences.length === 0) return "";
 
-  // Tag assignments by position
-  const TAGS: { cls: string; tagCls: string; label: string }[] = [
-    { cls: "wt-backdrop",  tagCls: "wt-tag-backdrop",  label: "context"    },
-    { cls: "wt-mechanism", tagCls: "wt-tag-mechanism",  label: "mechanism"  },
-    { cls: "wt-result",    tagCls: "wt-tag-result",     label: "result"     },
-  ];
-
-  const sentenceHtml = sentences.map((s, i) => {
-    // Last sentence always gets "result" tag regardless of total count
-    let tagIdx = i;
-    if (i >= TAGS.length - 1) tagIdx = TAGS.length - 1;
-    // If only 2 sentences: backdrop + result (skip mechanism)
-    if (sentences.length === 2 && i === 1) tagIdx = 2;
-
-    const tag = TAGS[tagIdx];
-    const highlighted = autoHL(s);
+  const prose = sentences.map((s, i) => {
     const arrow = i > 0
-      ? `<span style="color:#d97706;font-weight:800;margin:0 4px;">→</span>`
+      ? `<span style="color:#d97706;font-weight:700;margin:0 5px;">→</span>`
       : "";
-    return `${arrow}<span class="why-sentence ${tag.cls}"><span class="wt-tag ${tag.cls} ${tag.tagCls}">${tag.label}</span>${highlighted}</span>`;
+    return `${arrow}<span class="why-sentence">${s}</span>`;
   }).join("\n");
 
   return `<div class="why-block">
   <span class="why-label">How it works</span>
-  ${sentenceHtml}
+  ${prose}
 </div>`;
 }
 
@@ -652,19 +625,29 @@ export function renderStoryteller(data: any): string {
 
     function processNarrative(text: string): string {
       let t = esc(text);
-      t = applyHighlights(t, hl);
-      // Auto-highlight numbers and dollar amounts
-      t = t.replace(/\$[\d,.]+[BMKbmk]?(?:\s+(?:trillion|billion|million|thousand))?/gi, m => `<span class="hn">${m}</span>`);
-      t = t.replace(/\b\d+[.,]?\d*%/g, m => `<span class="hn">${m}</span>`);
+      // In storyteller mode: apply key-phrase highlight (bold underline) only
+      // The highlights array may have a single {type:"key"} entry from the reformat,
+      // or fall back to the engineer highlights (numbers/companies) — skip those in prose.
+      for (const h of hl) {
+        if (h.type === "key" && h.text) {
+          const phrase = esc(h.text);
+          t = t.replace(phrase, `<strong class="st-key">${phrase}</strong>`);
+        }
+        // Suppress engineer color boxes (.hn/.hc/.hw/.hg) — they're not meaningful in prose
+      }
       return t;
     }
 
-    // Split narrative into sentence-level paragraphs for readability
+    // First sentence rendered as narrative-hook (larger italic scene-setter),
+    // remaining sentences as regular narrative paragraphs.
     function formatNarrative(text: string): string {
       const processed = processNarrative(text);
       const sentences = processed.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 10);
-      if (sentences.length <= 1) return `<p class="narrative">${processed}</p>`;
-      return sentences.map(s => `<p class="narrative">${s}</p>`).join("\n");
+      if (sentences.length === 0) return `<p class="narrative">${processed}</p>`;
+      const [hook, ...rest] = sentences;
+      const hookHtml = `<p class="narrative-hook">${hook}</p>`;
+      const restHtml = rest.map(s => `<p class="narrative">${s}</p>`).join("\n");
+      return hookHtml + (restHtml ? "\n" + restHtml : "");
     }
 
     // So what — plain bullets, no emoji
