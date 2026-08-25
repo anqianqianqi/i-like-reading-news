@@ -27,16 +27,31 @@ CRITIQUE_PROMPT = """You are a quality reviewer for a personalized news digest f
 
 A story FAILS if ANY of these are true:
 - "what" is vague — missing specific numbers, names, dollar amounts from the sources
-- mechanism steps just restate events without explaining WHY each step causes the next
+- mechanism steps are TELEGRAPHIC — they just label what happened without explaining
+  the connecting logic between steps. A telegraphic step is one that a reader could
+  have written themselves from just reading the headline. If a step is under 8 words,
+  it's almost certainly telegraphic.
+  BAD steps: "talks collapse", "costs rise", "market reacts", "inflation follows"
+  GOOD steps: "tariff = tax on US importers, not Canada — American companies pay the
+    50% at the border, so Canadian input costs jump 50% for US manufacturers"
+- mechanism steps just restate events in sequence without explaining WHY each step
+  causes the next. A chain like "A → B → C" where every arrow is implicit is bad.
+  GOOD: "Companies fail to agree → US imposes 50% tariff → tariff is paid by US
+    importers not Canada → manufacturers absorb margin hit or raise consumer prices →
+    inflation gets new supply-side input"
   BAD: "Companies fail to agree → US imposes tariffs → Canada retaliates"
-  GOOD: "Talks collapse → 50% tariff on $20B Canadian goods → tariff = tax on US importers → manufacturers absorb or raise prices → consumer inflation input opens"
-- so_what says "monitor developments", "watch for changes", "could affect" without specifics
+- so_what uses non-committal language: "monitor developments", "watch for changes",
+  "could affect", "may impact" without naming what specifically and in which direction
+- so_what restates what already happened instead of giving the non-obvious insight
 - price_moves contains tickers NOT explicitly named in the source text
 
 A story PASSES if:
 - "what" contains specific facts (numbers, names, dollar amounts)
-- each mechanism step explains WHY it causes the next
-- so_what names a specific sector/ticker and direction
+- each mechanism step explains BOTH what happened AND why it leads to the next step —
+  a reader who knows nothing about the topic can follow every arrow without asking "but why?"
+- so_what's first bullet gives a non-obvious insight, second bullet names a specific
+  sector/ticker/direction for investment thinking
+- price_moves only has tickers explicitly mentioned in the sources
 
 Return JSON exactly:
 {
@@ -44,7 +59,7 @@ Return JSON exactly:
     {
       "story_index": 0,
       "story_title": "...",
-      "failures": ["specific description of what's wrong"],
+      "failures": ["specific description of what's wrong — quote the bad text and explain why it fails"],
       "missing_facts": ["facts that should be included"],
       "rewrite_priority": "high"
     }
@@ -56,11 +71,23 @@ Only flag genuinely failing stories. If all pass, return empty issues array."""
 
 REWRITE_PROMPT = """You are rewriting a news story to fix specific quality issues.
 
+Your goal is to write mechanism steps that read like a smart friend explaining how
+something works — not like a bullet-point summary of what happened.
+
+For each mechanism step:
+- Write it as a complete explanatory phrase that carries its own "because"
+- The reader should understand WHY this step leads to the next thing
+- Steps that are under 8 words are almost certainly just labels — expand them
+- GOOD: "tariff = a tax paid by US importers, not Canada — so American companies
+  absorb the cost at the border, which raises their input costs by 50%"
+- BAD: "tariff activates", "costs rise", "market reacts"
+
 what field: include specific numbers, dollar amounts, names, timelines from the sources.
-mechanism steps: each step MUST explain WHY it causes the next. 4-6 steps.
-  Types: cause / mechanism / result-short / result-long
-so_what: 2-3 bullets, max 20 words each. Name specific ticker/sector/direction.
-  NEVER "monitor developments". Always be specific.
+mechanism steps: 4-6 steps. Each 'mechanism' type step must explain the connecting logic —
+  WHY does the cause lead to the result? This is where the value is.
+so_what: 2-3 bullets. First bullet = non-obvious insight a casual reader would miss.
+  Second bullet = specific investment direction with a named ticker/sector.
+  NEVER "monitor developments". Always concrete and specific.
 
 Return JSON exactly:
 {

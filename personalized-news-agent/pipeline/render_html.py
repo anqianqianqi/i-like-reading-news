@@ -105,14 +105,7 @@ border-radius:0 6px 6px 0;padding:7px 11px;font-size:13px;margin-top:7px;}
 .hc{background:#e0f2fe;color:#0c4a6e;border-radius:3px;padding:0 3px;font-weight:700;}
 .hw{background:#fce7f3;color:#831843;border-radius:3px;padding:0 3px;font-weight:700;}
 .hg{background:#dcfce7;color:#14532d;border-radius:3px;padding:0 3px;font-weight:700;}
-/* Step type tags in chain */
-.step-tag{font-size:9px;font-weight:700;text-transform:uppercase;
-letter-spacing:.4px;padding:1px 5px;border-radius:3px;margin-right:5px;
-vertical-align:middle;flex-shrink:0;}
-.st-cause{background:#fee2e2;color:#9a1515;}
-.st-mechanism{background:#f1f5f9;color:#475569;}
-.st-result-short{background:#fff3cd;color:#713f12;}
-.st-result-long{background:#dcfce7;color:#14532d;}
+/* Step type tags in chain — removed, no longer rendered */
 a.gl{color:var(--a);text-decoration:underline dotted;cursor:pointer;}
 a.gl:hover{text-decoration:underline;}
 /* Glossary section */
@@ -278,13 +271,6 @@ def render_chains(mechanism, highlights: list) -> str:
     if not mechanism:
         return ""
 
-    STEP_TAG = {
-        "cause":        ("st-cause",        "cause"),
-        "mechanism":    ("st-mechanism",    "why"),
-        "result-short": ("st-result-short", "short-term"),
-        "result-long":  ("st-result-long",  "outcome"),
-    }
-
     chain_blocks = []
     for entry in mechanism:
         label = entry.get("label", "")
@@ -294,14 +280,11 @@ def render_chains(mechanism, highlights: list) -> str:
         if "steps" in entry:
             parts = []
             for j, step in enumerate(entry["steps"]):
-                text     = apply_highlights(html_lib.escape(step.get("text", "")), highlights)
-                stype    = step.get("type", "mechanism")
-                tag_cls, tag_label = STEP_TAG.get(stype, ("st-mechanism", "why"))
-                tag_html = f'<span class="step-tag {tag_cls}">{tag_label}</span>'
+                text = apply_highlights(html_lib.escape(step.get("text", "")), highlights)
                 if j == 0:
-                    parts.append(f'{tag_html}{text}')
+                    parts.append(f'<span class="chain-step">{text}</span>')
                 else:
-                    parts.append(f'<span class="arr">→</span>{tag_html}{text}')
+                    parts.append(f'<span class="chain-step"><span class="arr">→</span>{text}</span>')
             chain_blocks.append(f'<div class="chain">{label_html}{"".join(parts)}</div>')
 
         # Legacy format: plain chain string with → arrows

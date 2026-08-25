@@ -286,6 +286,14 @@ export default function Home() {
             cached
           </span>
         )}
+        <a href="/signup" style={{
+          marginLeft: "auto", fontSize: 12, fontWeight: 700,
+          color: "#6c5ce7", textDecoration: "none",
+          background: "rgba(108,92,231,0.08)", border: "1px solid rgba(108,92,231,0.25)",
+          padding: "4px 12px", borderRadius: 20,
+        }}>
+          ✉️ Subscribe
+        </a>
       </div>
       <p style={{ color: "#636e72", fontSize: 12, marginBottom: 20 }}>
         Fetch → Generate → Critique → Rewrite → Store in Blob

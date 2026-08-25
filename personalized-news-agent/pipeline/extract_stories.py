@@ -107,14 +107,14 @@ RESPONSE_SCHEMA = {
                     },
                     "mechanism": {
                         "type": "array",
-                        "description": "One or more causal chains. Each chain must have 3 layers: CAUSE → INTERMEDIATE MECHANISM → RESULT. The intermediate steps must explain WHY the cause leads to the result — not just list what happened. Each step should be a complete phrase that makes the logic clear. Do NOT use bracket labels like [CAUSE] or [RESULT] — the steps should be self-explanatory without labels. Example: 'Iran ceasefire expires → Hormuz closure threatened (20% of global oil transits here) → supply disruption risk repriced → oil rises + bond yields spike'. The chain should be self-explanatory to a reader without background knowledge. 4-6 steps recommended.",
+                        "description": "One or more causal chains, written as a story a smart friend would tell you. Each step must carry its own 'because' — never just label what happened, always explain the logic that connects it to the next step. A reader who knows nothing about this topic should be able to follow every arrow without stopping to ask 'but why?' Steps should be complete, explanatory sentences or phrases. 4-6 steps per chain. Use multiple chains only when two genuinely separate causal paths both need to be traced. GOOD example: 'US-Canada talks collapse at midnight → 50% tariff activates on steel, autos, lumber → tariff is a tax paid by US importers, not Canada — American companies absorb the cost → Canadian input costs jump 50% for US manufacturers → manufacturers either squeeze their own margins or raise prices, feeding consumer inflation'. BAD example: 'talks collapse → tariff activates → costs rise → inflation'. The bad version is just labels — it tells the reader nothing they couldn't infer themselves.",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "label": { "type": "string", "description": "2-4 word label for this chain. e.g. 'Bond market', 'Cybercab'. Leave empty string if only one chain." },
+                                "label": { "type": "string", "description": "2-4 word label for this chain if there are multiple chains. e.g. 'Bond market', 'Why buyback failed'. Leave empty string if only one chain." },
                                 "steps": {
                                     "type": "array",
-                                    "description": "The causal chain as ordered steps. Each step has text and a type. Types: 'cause' = what triggered it, 'mechanism' = why/how it propagates, 'result-short' = immediate outcome that may reverse, 'result-long' = lasting implication. 4-6 steps total.",
+                                    "description": "Ordered steps of the causal chain. Each step is a sentence or phrase that explains BOTH what happened AND why it leads to the next thing. The step text should be long enough to carry the logic — 10-25 words is typical. Steps that are under 6 words are almost certainly just labels and will be rejected. Types: 'cause' = the triggering event, 'mechanism' = the connecting logic that explains why the cause propagates (this is where the value lives — don't skip these), 'result-short' = an immediate outcome that may be temporary, 'result-long' = the durable implication or where this ends up.",
                                     "items": {
                                         "type": "object",
                                         "properties": {
@@ -226,13 +226,41 @@ SYSTEM_PROMPT = textwrap.dedent("""
     If multiple sources cover the same story, merge them into ONE story.
     List all source IDs in the sources array. Take the best details from each.
 
-    ### Mechanism field — SHORT AND TIGHT
-    Max 4 steps. Each node is a short phrase (under 8 words). No parenthetical
-    explanations in the chain itself. Just: A → B → C → D.
-    The chain should be scannable in 3 seconds.
+    ### Mechanism field — TELL THE STORY, DON'T LABEL IT
+    Your job here is to be the smart friend who actually explains how something works.
+    Write each step as if you're talking to someone who is intelligent but doesn't have
+    background knowledge on this topic. The reader should finish the chain thinking
+    "oh, NOW I get why this matters" — not "I could have written that myself."
 
-    Bad: "Treasury supply increases ($2T/yr borrowing) → bond prices fall (more supply, same demand) → yield rises (yield = coupon/price, inverse relationship)"
-    Good: "US borrows $2T/yr → bond supply up → price falls → yield rises"
+    The ONLY failure mode you must avoid: writing steps that just restate the event
+    without explaining the connection. Every step must answer the implicit question
+    "but why does that lead to the next thing?"
+
+    GOOD (explains the connection):
+    'US-Canada talks collapse at midnight deadline → 50% tariff activates on
+    Canadian steel, autos, lumber → here's the key: the tariff is a tax on US
+    importers, not Canada — American companies pay the 50% at the border →
+    Canadian input costs jump 50% for US manufacturers → manufacturers either
+    absorb the margin hit or raise prices on consumers, feeding inflation'
+
+    BAD (just labels what happened, explains nothing):
+    'talks collapse → tariff activates → costs rise → inflation'
+
+    GOOD (explains WHY the mechanism works):
+    'Cybercab removes safety driver → the safety driver was the legal buffer between
+    Tesla and full autonomous liability — without one, Tesla is accepting that this
+    car can operate with no human fallback → that regulatory threshold is what
+    separates a demo from a commercial product → Cybercab just crossed it'
+
+    BAD (connects dots without explaining them):
+    'safety driver removed → regulatory threshold crossed → commercial launch'
+
+    There is no word limit on steps. A step should be as long as it needs to be
+    to carry the logic. Short steps are a warning sign that you're labeling, not explaining.
+
+    4-6 steps per chain. Use 'mechanism' type steps liberally — they are where
+    the value lives. Never have a cause step jumping directly to a result step
+    without a mechanism step in between.
 
     ### One story = one theme
     If two events prove the same thesis, put them in ONE story with ONE chain.
@@ -241,27 +269,30 @@ SYSTEM_PROMPT = textwrap.dedent("""
     that both need to be traced separately.
     When in doubt, one chain is cleaner.
 
-    ### Mechanism — Cause → Intermediate mechanism → Result
-    Every chain must have three layers:
-    CAUSE: what triggered it
-    INTERMEDIATE: why does the cause lead to the result? what is the actual mechanism?
+    ### Mechanism — always three layers minimum
+    CAUSE: what triggered it (the event)
+    MECHANISM (one or more): WHY does this propagate? what is the actual connecting logic?
     RESULT: what actually happened or will happen
 
-    The intermediate steps are the most important — they explain the logic a reader
-    wouldn't know without background knowledge. Don't skip them.
+    The mechanism steps are the most important — they contain the knowledge a reader
+    wouldn't know without background. These are what separates a good brief from a
+    headline aggregator. Never skip them.
 
-    BAD: 'Iran ceasefire expires → oil prices rise'
-    GOOD: 'Iran ceasefire expires → Hormuz closure threatened (20% of global oil transits here) → supply disruption risk repriced → oil rises + bond yields spike (inflation fears return)'
+    ### So what field — INSIGHT FIRST, INVESTMENT SECOND
+    2-3 bullets. Each bullet is one tight, punchy sentence. Lead with the punchline.
+    NO setup, no "this means that", no restating what just happened.
 
-    BAD: 'Cybercab removes safety driver → commercial launch'
-    GOOD: 'Cybercab removes safety driver → safety driver was the legal buffer (without it, operator accepts full autonomous liability) → regulatory threshold crossed → commercial reality, not a demo'
+    Bullet 1: the non-obvious insight — what would a smart analyst say that a casual
+    reader would miss? The thing that reframes how you think about this.
+    Bullet 2: the investment/market implication — specific direction, specific sector or
+    ticker, specific thesis. Not "could impact tech" — "bearish on Uber 3-5yr as
+    robotaxi undercuts their economics on every major route."
+    Bullet 3 (if you have one): a single specific thing to WATCH or ACT ON.
+    This must be concrete — a named event, a named ticker, a specific date or threshold.
+    NEVER: "monitor developments", "watch for changes", "could affect markets."
 
-    4-6 steps. Each step a complete phrase that makes the logic clear on its own.
-
-    ### So what field — THIS IS THE VALUE, KEEP IT SHORT
-    2-3 sentences MAXIMUM. Blend the insight and the investment angle together.
-    Lead with the punchline. No setup paragraphs.
-    Always end with one specific thing to watch or act on.
+    The bar for bullet 3 is high. Only include it if you have something genuinely
+    actionable to say. Two strong bullets beat three weak ones.
 
     ### No buzzwords without definition
     If any of these words appear in your output, they MUST be followed immediately
