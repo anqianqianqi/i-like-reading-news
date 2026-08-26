@@ -37,7 +37,6 @@ function makeBubble(id: number): Bubble {
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
-  const [name, setName]   = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [bubbles] = useState<Bubble[]>(() =>
@@ -56,7 +55,7 @@ export default function SignupPage() {
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), name: name.trim() }),
+        body: JSON.stringify({ email: email.trim() }),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
@@ -191,7 +190,7 @@ export default function SignupPage() {
                 You&apos;re in!
               </h2>
               <p style={{ color: "#636e72", fontSize: 14, lineHeight: 1.65, margin: "0 0 28px" }}>
-                {name ? `Hey ${name.split(" ")[0]} — ` : ""}You&apos;ll get Anqi&apos;s Daily Brief every morning.
+                You&apos;ll get the Daily Brief every morning.
                 Engineer format. Causal chains. No filler.
               </p>
               <Link
@@ -221,11 +220,11 @@ export default function SignupPage() {
                   fontSize: "1.55rem", fontWeight: 900, color: "#2d3436",
                   margin: "0 0 8px", letterSpacing: "-0.3px",
                 }}>
-                  Anqi&apos;s Daily Brief
+                  Daily Brief
                 </h1>
                 <p style={{ color: "#636e72", fontSize: 13.5, lineHeight: 1.65, margin: 0 }}>
-                  A personalized morning news digest — engineer format, causal chains,
-                  market angle. Every weekday at 6am.
+                  A newsletter tailored to your engineer brain — causal chains,
+                  market angles, and tech depth. Every weekday at 6am.
                 </p>
               </div>
 
@@ -245,32 +244,74 @@ export default function SignupPage() {
               </div>
 
               <form onSubmit={handleSubmit}>
-                {/* Name */}
-                <div style={{ marginBottom: 14 }}>
-                  <label htmlFor="signup-name" style={{
-                    display: "block", fontSize: 12, fontWeight: 600,
-                    color: "#2d3436", marginBottom: 6,
+                {/* Preview snippet */}
+                <div style={{
+                  background: "rgba(108,92,231,0.04)",
+                  border: "1.5px solid rgba(108,92,231,0.14)",
+                  borderRadius: 12,
+                  padding: "12px 14px",
+                  marginBottom: 18,
+                  fontSize: 12,
+                  lineHeight: 1.65,
+                  color: "#2d3436",
+                  overflow: "hidden",
+                  position: "relative",
+                }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px", color: "#a29bfe", marginBottom: 7 }}>
+                    📰 format preview
+                  </div>
+
+                  {/* Story header */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, filter: "blur(0px)" }}>
+                    <span style={{
+                      background: "#6c5ce7", color: "#fff", fontSize: 9, fontWeight: 700,
+                      width: 16, height: 16, borderRadius: "50%", display: "flex",
+                      alignItems: "center", justifyContent: "center", flexShrink: 0,
+                    }}>1</span>
+                    <span style={{ fontWeight: 700, fontSize: 12 }}>
+                      Guy accidentally runs{" "}
+                      <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 2px", fontWeight: 700 }}>SELECT *</span>
+                      {" "}on prod, becomes CEO
+                    </span>
+                    <span style={{ background: "#f3e8ff", color: "#6b21a8", fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 6, marginLeft: "auto", flexShrink: 0 }}>MB</span>
+                  </div>
+
+                  {/* What line — blurred */}
+                  <p style={{ margin: "0 0 6px", fontSize: 12, filter: "blur(3.5px)", userSelect: "none" }}>
+                    <strong>What:</strong> A junior engineer at <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 2px", fontWeight: 700 }}>FinanceApp</span> queried the entire production database during standup, accidentally exposing that the company had <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 2px", fontWeight: 700 }}>$0</span> in revenue. Board was so impressed by his confidence they promoted him on the spot.
+                  </p>
+
+                  {/* Causal chain — blurred */}
+                  <div style={{
+                    borderLeft: "3px solid #e8e4e0", background: "#fafafa",
+                    borderRadius: "0 6px 6px 0", padding: "5px 10px", fontSize: 11,
+                    color: "#2d3436", filter: "blur(3.5px)", userSelect: "none",
                   }}>
-                    First name <span style={{ color: "#b2bec3", fontWeight: 400 }}>(optional)</span>
-                  </label>
-                  <input
-                    id="signup-name"
-                    type="text"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="Anqi"
-                    autoComplete="given-name"
-                    style={{
-                      width: "100%", boxSizing: "border-box",
-                      padding: "11px 14px", borderRadius: 12,
-                      border: "1.5px solid #e8e4e0", background: "rgba(255,255,255,0.9)",
-                      fontSize: 14, color: "#2d3436", outline: "none",
-                      transition: "border-color 0.15s",
-                      fontFamily: "inherit",
-                    }}
-                    onFocus={e => (e.target.style.borderColor = "#6c5ce7")}
-                    onBlur={e => (e.target.style.borderColor = "#e8e4e0")}
-                  />
+                    <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "#636e72", display: "block", marginBottom: 3 }}>causal chain</span>
+                    <span style={{ background: "#fee2e2", color: "#9a1515", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>cause</span>SELECT * on prod at 9am standup
+                    <span style={{ color: "#6c5ce7", fontWeight: 800, margin: "0 3px" }}>→</span>
+                    <span style={{ background: "#fff3cd", color: "#713f12", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>short-term</span>entire company revenue visible on screen
+                    <span style={{ color: "#6c5ce7", fontWeight: 800, margin: "0 3px" }}>→</span>
+                    <span style={{ background: "#dcfce7", color: "#14532d", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>outcome</span>promoted for "radical transparency"
+                  </div>
+
+                  {/* So what — blurred */}
+                  <div style={{
+                    background: "#f0e6ff", borderLeft: "3px solid #6c5ce7",
+                    borderRadius: "0 6px 6px 0", padding: "5px 10px",
+                    fontSize: 11, marginTop: 6, filter: "blur(3.5px)", userSelect: "none",
+                  }}>
+                    <span style={{ color: "#6c5ce7", fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.7px", display: "block", marginBottom: 4 }}>so what</span>
+                    The real lesson: confidence is a feature, not a skill. Investors loved that he "moved fast and broke things" and also broke the on-call schedule for three months straight. Series B incoming.
+                  </div>
+
+                  {/* Fade overlay hinting there's more */}
+                  <div style={{
+                    position: "absolute", bottom: 0, left: 0, right: 0,
+                    height: 36,
+                    background: "linear-gradient(to bottom, transparent, rgba(246,243,255,0.95))",
+                    pointerEvents: "none",
+                  }} />
                 </div>
 
                 {/* Email */}
@@ -357,7 +398,7 @@ export default function SignupPage() {
           marginTop: 24, color: "rgba(99,110,114,0.7)",
           fontSize: 11.5, textAlign: "center",
         }}>
-          No spam. Unsubscribe anytime. Built by Anqi.
+          No spam. Unsubscribe anytime.
         </p>
       </div>
     </>
