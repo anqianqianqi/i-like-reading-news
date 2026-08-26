@@ -288,7 +288,7 @@ export default function SignupPage() {
                       : "同样的因果链分析，全中文版"}
                   </div>
                 </div>
-                {/* Preview snippet */}
+                {/* Preview snippet — swaps with language */}
                 <div style={{
                   background: "rgba(108,92,231,0.04)",
                   border: "1.5px solid rgba(108,92,231,0.14)",
@@ -300,7 +300,7 @@ export default function SignupPage() {
                   color: "#2d3436",
                 }}>
                   <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px", color: "#a29bfe", marginBottom: 8 }}>
-                    📰 format preview · definitely real news
+                    📰 {language === "chinese" ? "格式预览 · 绝对真实新闻" : "format preview · definitely real news"}
                   </div>
 
                   {/* Story header */}
@@ -311,17 +311,29 @@ export default function SignupPage() {
                       alignItems: "center", justifyContent: "center", flexShrink: 0,
                     }}>1</span>
                     <span style={{ fontWeight: 700, fontSize: 12, lineHeight: 1.4 }}>
-                      <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>Canadia</span>{" "}
-                      retaliates with <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50% tariffs</span> on frozen maple syrup — also renames border "The Chill Wall"
+                      {language === "chinese" ? (
+                        <><span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>加拿大亚</span>对枫糖浆征收{" "}
+                        <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50%报复性关税</span>——并将边境改名"寒冷之墙"</>
+                      ) : (
+                        <><span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>Canadia</span>{" "}
+                        retaliates with <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50% tariffs</span> on frozen maple syrup — also renames border "The Chill Wall"</>
+                      )}
                     </span>
                     <span style={{ background: "#fff3cd", color: "#92400e", fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 7, marginLeft: "auto", flexShrink: 0 }}>MB</span>
                   </div>
 
                   {/* What */}
                   <p style={{ margin: "0 0 7px", fontSize: 12, lineHeight: 1.65 }}>
-                    <strong>What:</strong> <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>Canadia</span> slapped{" "}
-                    <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50% tariffs</span> on <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>$20B</span> of exports — frozen octopus, artisanal chainsaws, and <span style={{ background: "#fce7f3", color: "#831843", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>all flannel</span>.
-                    President Trumpton retaliated by proposing a <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>200% tariff</span> on hockey pucks "just to make a point."
+                    {language === "chinese" ? (
+                      <><strong>发生了什么：</strong><span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>加拿大亚</span>对{" "}
+                      <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>200亿美元</span>出口商品祭出{" "}
+                      <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50%关税</span>——冷冻章鱼、手工电锯和<span style={{ background: "#fce7f3", color: "#831843", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>所有格子衬衫</span>。
+                      特朗普顿总统反手提出对冰球征收<span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>200%关税</span>，"就是要表个态。"</>
+                    ) : (
+                      <><strong>What:</strong> <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>Canadia</span> slapped{" "}
+                      <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50% tariffs</span> on <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>$20B</span> of exports — frozen octopus, artisanal chainsaws, and <span style={{ background: "#fce7f3", color: "#831843", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>all flannel</span>.
+                      President Trumpton retaliated by proposing a <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>200% tariff</span> on hockey pucks "just to make a point."</>
+                    )}
                   </p>
 
                   {/* Causal chain */}
@@ -330,14 +342,24 @@ export default function SignupPage() {
                     borderRadius: "0 6px 6px 0", padding: "6px 10px", fontSize: 11,
                     color: "#2d3436", marginBottom: 7, lineHeight: 1.7,
                   }}>
-                    <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "#636e72", display: "block", marginBottom: 4 }}>causal chain</span>
-                    <span style={{ background: "#fee2e2", color: "#9a1515", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>cause</span>talks collapse over flannel import quotas
+                    <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "#636e72", display: "block", marginBottom: 4 }}>
+                      {language === "chinese" ? "因果链" : "causal chain"}
+                    </span>
+                    <span style={{ background: "#fee2e2", color: "#9a1515", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>
+                      {language === "chinese" ? "起因" : "cause"}
+                    </span>{language === "chinese" ? "谈判因格子衬衫进口配额破裂" : "talks collapse over flannel import quotas"}
                     <span style={{ color: "#6c5ce7", fontWeight: 800, margin: "0 3px" }}>→</span>
-                    <span style={{ background: "#f1f5f9", color: "#475569", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>mechanism</span>Canadia targets swing-district chainsaws + artisanal cheese
+                    <span style={{ background: "#f1f5f9", color: "#475569", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>
+                      {language === "chinese" ? "机制" : "mechanism"}
+                    </span>{language === "chinese" ? "加拿大亚精准打击摇摆选区的电锯+手工奶酪" : "Canadia targets swing-district chainsaws + artisanal cheese"}
                     <span style={{ color: "#6c5ce7", fontWeight: 800, margin: "0 3px" }}>→</span>
-                    <span style={{ background: "#fff3cd", color: "#713f12", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>short-term</span>flannel futures spike 340%, Patagonia halts production
+                    <span style={{ background: "#fff3cd", color: "#713f12", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>
+                      {language === "chinese" ? "短期" : "short-term"}
+                    </span>{language === "chinese" ? "格子衬衫期货暴涨340%，巴塔哥尼亚停产" : "flannel futures spike 340%, Patagonia halts production"}
                     <span style={{ color: "#6c5ce7", fontWeight: 800, margin: "0 3px" }}>→</span>
-                    <span style={{ background: "#dcfce7", color: "#14532d", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>outcome</span>both sides still willing to negotiate, probably
+                    <span style={{ background: "#dcfce7", color: "#14532d", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>
+                      {language === "chinese" ? "结果" : "outcome"}
+                    </span>{language === "chinese" ? "双方仍愿谈判，大概吧" : "both sides still willing to negotiate, probably"}
                   </div>
 
                   {/* So what */}
@@ -345,14 +367,22 @@ export default function SignupPage() {
                     background: "#f0e6ff", borderLeft: "3px solid #6c5ce7",
                     borderRadius: "0 6px 6px 0", padding: "7px 10px", fontSize: 11, lineHeight: 1.65,
                   }}>
-                    <span style={{ color: "#6c5ce7", fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.7px", display: "block", marginBottom: 5 }}>so what</span>
+                    <span style={{ color: "#6c5ce7", fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.7px", display: "block", marginBottom: 5 }}>
+                      {language === "chinese" ? "这意味着什么" : "so what"}
+                    </span>
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 4 }}>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#6c5ce7", flexShrink: 0, marginTop: 5 }}/>
-                      <span>Canadia is playing the political map, not the economic one — picking products by senate seat, not trade volume. Midterms in November = leverage window.</span>
+                      <span>{language === "chinese"
+                        ? "加拿大亚打的是政治地图——按参议院席位选产品，不按贸易额。11月中期选举 = 筹码窗口。"
+                        : "Canadia is playing the political map, not the economic one — picking products by senate seat, not trade volume. Midterms in November = leverage window."
+                      }</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#6c5ce7", flexShrink: 0, marginTop: 5 }}/>
-                      <span>Real briefs are exactly this format — headline, <strong>What</strong>, causal chain, <em>so what</em>. Just with less flannel.</span>
+                      <span>{language === "chinese"
+                        ? "真实简报就是这个格式——标题、发生了什么、因果链、这意味着什么。只是格子衬衫会少一点。"
+                        : <>Real briefs are exactly this format — headline, <strong>What</strong>, causal chain, <em>so what</em>. Just with less flannel.</>
+                      }</span>
                     </div>
                   </div>
                 </div>
