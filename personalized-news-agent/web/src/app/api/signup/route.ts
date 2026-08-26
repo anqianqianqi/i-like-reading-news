@@ -1,6 +1,6 @@
 /**
  * POST /api/signup
- * Body: { email: string, name?: string }
+ * Body: { email: string, language?: "english" | "chinese" }
  *
  * Persists the subscriber to Vercel Blob as subscribers.json.
  * Falls back to an in-memory response if Blob is unavailable
@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 interface Subscriber {
   email: string;
-  name: string;
+  language: string;
   signedUpAt: string;
   source: string;
 }
@@ -50,21 +50,24 @@ async function saveSubscribers(list: Subscriber[]): Promise<void> {
 // ── Route ──────────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  let body: { email?: string; name?: string };
+  let body: { email?: string; language?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const email = (body.email ?? "").trim().toLowerCase();
-  const name  = (body.name  ?? "").trim();
+  const email    = (body.email    ?? "").trim().toLowerCase();
+  const language = (body.language ?? "english").trim();
 
   if (!email) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
   if (!EMAIL_RE.test(email)) {
     return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+  }
+  if (!["english", "chinese"].includes(language)) {
+    return NextResponse.json({ error: "Invalid language" }, { status: 400 });
   }
 
   const subscribers = await loadSubscribers();
@@ -77,7 +80,7 @@ export async function POST(req: NextRequest) {
 
   const newEntry: Subscriber = {
     email,
-    name,
+    language,
     signedUpAt: new Date().toISOString(),
     source: "signup-page",
   };
@@ -85,7 +88,7 @@ export async function POST(req: NextRequest) {
   subscribers.push(newEntry);
   await saveSubscribers(subscribers);
 
-  console.log(`[signup] New subscriber: ${email} (${name || "anon"})`);
+  console.log(`[signup] New subscriber: ${email} (${language})`);
 
   return NextResponse.json({ ok: true, message: "Subscribed!" }, { status: 201 });
 }

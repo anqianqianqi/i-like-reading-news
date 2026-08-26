@@ -37,6 +37,7 @@ function makeBubble(id: number): Bubble {
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
+  const [language, setLanguage] = useState<"english" | "chinese">("english");
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [bubbles] = useState<Bubble[]>(() =>
@@ -55,7 +56,7 @@ export default function SignupPage() {
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), language }),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
@@ -244,6 +245,49 @@ export default function SignupPage() {
               </div>
 
               <form onSubmit={handleSubmit}>
+                {/* Language picker */}
+                <div style={{ marginBottom: 18 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#2d3436", marginBottom: 8 }}>
+                    Preferred language
+                  </div>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    {(["english", "chinese"] as const).map(lang => (
+                      <button
+                        key={lang}
+                        type="button"
+                        onClick={() => setLanguage(lang)}
+                        style={{
+                          flex: 1,
+                          padding: "10px 0",
+                          borderRadius: 12,
+                          border: language === lang
+                            ? "2px solid #6c5ce7"
+                            : "1.5px solid #e8e4e0",
+                          background: language === lang
+                            ? "linear-gradient(135deg, rgba(108,92,231,0.1), rgba(162,155,254,0.08))"
+                            : "rgba(255,255,255,0.9)",
+                          color: language === lang ? "#6c5ce7" : "#636e72",
+                          fontWeight: 700,
+                          fontSize: 13,
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                          fontFamily: "inherit",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                        }}
+                      >
+                        {lang === "english" ? "🧠 Engineer (EN)" : "🇨🇳 中文 (ZH)"}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#b2bec3", marginTop: 6, textAlign: "center" }}>
+                    {language === "english"
+                      ? "Causal chains, market angles, tech depth — in English"
+                      : "同样的因果链分析，全中文版"}
+                  </div>
+                </div>
                 {/* Preview snippet */}
                 <div style={{
                   background: "rgba(108,92,231,0.04)",
