@@ -148,6 +148,218 @@ const GLOSSARY: Record<string, { term: string; def: string; chain: string }> = {
   },
 };
 
+// ── TTS Speaker Widget ─────────────────────────────────────────────────────
+// Draggable 🔊 button injected into every rendered brief.
+// • Toggle active mode (button glows purple)
+// • In active mode: click any word → TTS reads from that word to end of page
+// • Words highlight in real-time as they're spoken
+// • Click 🔊 again to stop & reset
+const SPEAKER_WIDGET = `
+<style>
+  #tts-btn {
+    position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: #fff; border: 2px solid #e8e4e0;
+    font-size: 22px; cursor: grab;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    transition: background .15s, border-color .15s, box-shadow .15s;
+    user-select: none; touch-action: none;
+  }
+  #tts-btn.active {
+    background: #6c5ce7; border-color: #6c5ce7;
+    box-shadow: 0 4px 24px rgba(108,92,231,.45);
+  }
+  #tts-btn.active span { filter: brightness(10); }
+  #tts-btn.listening { cursor: crosshair; }
+  .tts-word { cursor: pointer; border-radius: 2px; transition: background .1s; }
+  .tts-word:hover { background: rgba(108,92,231,.12); }
+  .tts-word.speaking { background: #fef9c3; }
+  #tts-hint {
+    position: fixed; bottom: 84px; right: 20px; z-index: 9998;
+    background: #2d3436; color: #fff; font-size: 11px; font-weight: 600;
+    padding: 5px 10px; border-radius: 8px; pointer-events: none;
+    opacity: 0; transition: opacity .2s; white-space: nowrap;
+    font-family: system-ui, sans-serif;
+  }
+  #tts-hint.show { opacity: 1; }
+</style>
+
+<div id="tts-btn" title="Read aloud"><span>🔊</span></div>
+<div id="tts-hint">Click any word to start reading</div>
+
+<script>
+(function() {
+  const btn      = document.getElementById('tts-btn');
+  const hint     = document.getElementById('tts-hint');
+  let active     = false;   // toggle state
+  let words      = [];      // all .tts-word spans
+  let utterance  = null;
+  let speaking   = false;
+  let dragging   = false;
+  let dragStartX = 0, dragStartY = 0, btnX = 0, btnY = 0;
+
+  // ── 1. Wrap every text node word in a <span class="tts-word"> ────────────
+  function wrapWords(root) {
+    const skip = new Set(['SCRIPT','STYLE','NOSCRIPT','BUTTON','INPUT','TEXTAREA','SELECT']);
+    function walk(node) {
+      if (node.nodeType === 3) {
+        const text = node.textContent;
+        if (!text.trim()) return;
+        const parts = text.split(/(\s+)/);
+        const frag  = document.createDocumentFragment();
+        parts.forEach(p => {
+          if (/\s+/.test(p) || !p.trim()) {
+            frag.appendChild(document.createTextNode(p));
+          } else {
+            const sp = document.createElement('span');
+            sp.className = 'tts-word';
+            sp.textContent = p;
+            sp.addEventListener('click', onWordClick);
+            frag.appendChild(sp);
+          }
+        });
+        node.parentNode.replaceChild(frag, node);
+      } else if (node.nodeType === 1 && !skip.has(node.tagName)) {
+        Array.from(node.childNodes).forEach(walk);
+      }
+    }
+    walk(root);
+    words = Array.from(document.querySelectorAll('.tts-word'));
+  }
+
+  // ── 2. Toggle active mode ─────────────────────────────────────────────────
+  function toggleActive() {
+    if (speaking) { stopSpeech(); return; }
+    active = !active;
+    btn.classList.toggle('active', active);
+    btn.classList.toggle('listening', active);
+    hint.classList.toggle('show', active);
+  }
+
+  // ── 3. Word click → start reading from that word ─────────────────────────
+  function onWordClick(e) {
+    if (!active) return;
+    e.stopPropagation();
+    const idx = words.indexOf(e.currentTarget);
+    if (idx === -1) return;
+    startFrom(idx);
+  }
+
+  function startFrom(startIdx) {
+    stopSpeech();
+    hint.classList.remove('show');
+    btn.classList.remove('listening');
+
+    const chunk = words.slice(startIdx).map(w => w.textContent).join(' ');
+    utterance = new SpeechSynthesisUtterance(chunk);
+    utterance.lang  = document.documentElement.lang || 'en-US';
+    utterance.rate  = 1.0;
+    utterance.pitch = 1.0;
+
+    let wordIdx = startIdx;
+    // Highlight tracking via boundary events
+    utterance.addEventListener('boundary', function(ev) {
+      if (ev.name !== 'word') return;
+      // Clear previous
+      words.forEach(w => w.classList.remove('speaking'));
+      // Advance wordIdx until char offset matches
+      let charCount = 0;
+      for (let i = startIdx; i < words.length; i++) {
+        if (charCount >= ev.charIndex) {
+          wordIdx = i;
+          words[i].classList.add('speaking');
+          words[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          break;
+        }
+        charCount += words[i].textContent.length + 1; // +1 for space
+      }
+    });
+
+    utterance.addEventListener('end', function() {
+      speaking = false;
+      words.forEach(w => w.classList.remove('speaking'));
+      btn.classList.remove('active');
+      active = false;
+    });
+
+    utterance.addEventListener('error', function() {
+      speaking = false;
+      words.forEach(w => w.classList.remove('speaking'));
+    });
+
+    speaking = true;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function stopSpeech() {
+    window.speechSynthesis.cancel();
+    speaking = false;
+    words.forEach(w => w.classList.remove('speaking'));
+    utterance = null;
+  }
+
+  // ── 4. Drag to move button ────────────────────────────────────────────────
+  btn.addEventListener('pointerdown', function(e) {
+    if (e.button !== 0) return;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    const rect = btn.getBoundingClientRect();
+    btnX = rect.left;
+    btnY = rect.top;
+    dragging = false;
+    btn.setPointerCapture(e.pointerId);
+
+    function onMove(ev) {
+      const dx = ev.clientX - dragStartX;
+      const dy = ev.clientY - dragStartY;
+      if (!dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+        dragging = true;
+        btn.style.right  = 'auto';
+        btn.style.bottom = 'auto';
+        btn.style.cursor = 'grabbing';
+      }
+      if (dragging) {
+        btn.style.left = Math.max(0, Math.min(window.innerWidth  - 48, btnX + dx)) + 'px';
+        btn.style.top  = Math.max(0, Math.min(window.innerHeight - 48, btnY + dy)) + 'px';
+        // also sync hint below btn
+        hint.style.right  = 'auto';
+        hint.style.bottom = 'auto';
+        hint.style.left   = btn.style.left;
+        hint.style.top    = (parseFloat(btn.style.top) - 40) + 'px';
+      }
+    }
+
+    function onUp() {
+      btn.style.cursor = active ? 'crosshair' : 'grab';
+      btn.releasePointerCapture(e.pointerId);
+      btn.removeEventListener('pointermove', onMove);
+      btn.removeEventListener('pointerup', onUp);
+      if (!dragging) toggleActive();
+    }
+
+    btn.addEventListener('pointermove', onMove);
+    btn.addEventListener('pointerup', onUp);
+  });
+
+  // ── 5. Init ───────────────────────────────────────────────────────────────
+  // Wait for full DOM then wrap words
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => wrapWords(document.body));
+  } else {
+    wrapWords(document.body);
+  }
+
+  // Warn if browser doesn't support TTS
+  if (!window.speechSynthesis) {
+    btn.title = 'Text-to-speech not supported in this browser';
+    btn.style.opacity = '0.4';
+    btn.style.pointerEvents = 'none';
+  }
+})();
+</script>
+`;
+
 function esc(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -466,7 +678,9 @@ export function renderEngineer(data: any): string {
 <title>Anqi's Daily Brief — ${today}</title>
 <style>${CSS}</style>
 </head>
-<body>${body}</body>
+<body>${body}
+${SPEAKER_WIDGET}
+</body>
 </html>`;
 }
 
@@ -723,6 +937,8 @@ export function renderStoryteller(data: any): string {
 <title>Today's Stories — ${today}</title>
 <style>${CSS_STORYTELLER}</style>
 </head>
-<body>${body}</body>
+<body>${body}
+${SPEAKER_WIDGET}
+</body>
 </html>`;
 }
