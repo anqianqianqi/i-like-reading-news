@@ -254,64 +254,65 @@ export default function SignupPage() {
                   fontSize: 12,
                   lineHeight: 1.65,
                   color: "#2d3436",
-                  overflow: "hidden",
-                  position: "relative",
                 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px", color: "#a29bfe", marginBottom: 7 }}>
-                    📰 format preview
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px", color: "#a29bfe", marginBottom: 8 }}>
+                    📰 format preview · definitely real news
                   </div>
 
                   {/* Story header */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, filter: "blur(0px)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7, paddingBottom: 6, borderBottom: "1.5px solid #e8e4e0" }}>
                     <span style={{
                       background: "#6c5ce7", color: "#fff", fontSize: 9, fontWeight: 700,
-                      width: 16, height: 16, borderRadius: "50%", display: "flex",
+                      width: 18, height: 18, borderRadius: "50%", display: "flex",
                       alignItems: "center", justifyContent: "center", flexShrink: 0,
                     }}>1</span>
-                    <span style={{ fontWeight: 700, fontSize: 12 }}>
-                      Guy accidentally runs{" "}
-                      <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 2px", fontWeight: 700 }}>SELECT *</span>
-                      {" "}on prod, becomes CEO
+                    <span style={{ fontWeight: 700, fontSize: 12, lineHeight: 1.4 }}>
+                      <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>Canadia</span>{" "}
+                      retaliates with <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50% tariffs</span> on frozen maple syrup — also renames border "The Chill Wall"
                     </span>
-                    <span style={{ background: "#f3e8ff", color: "#6b21a8", fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 6, marginLeft: "auto", flexShrink: 0 }}>MB</span>
+                    <span style={{ background: "#fff3cd", color: "#92400e", fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 7, marginLeft: "auto", flexShrink: 0 }}>MB</span>
                   </div>
 
-                  {/* What line — blurred */}
-                  <p style={{ margin: "0 0 6px", fontSize: 12, filter: "blur(3.5px)", userSelect: "none" }}>
-                    <strong>What:</strong> A junior engineer at <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 2px", fontWeight: 700 }}>FinanceApp</span> queried the entire production database during standup, accidentally exposing that the company had <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 2px", fontWeight: 700 }}>$0</span> in revenue. Board was so impressed by his confidence they promoted him on the spot.
+                  {/* What */}
+                  <p style={{ margin: "0 0 7px", fontSize: 12, lineHeight: 1.65 }}>
+                    <strong>What:</strong> After trade talks collapsed, <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>Canadia</span> announced{" "}
+                    <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50% tariffs</span> on <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>$20B</span> of exports,
+                    strategically targeting products from politically sensitive districts — including frozen octopus, artisanal chainsaws, and{" "}
+                    <span style={{ background: "#fce7f3", color: "#831843", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>all flannel</span>.
+                    President Trumpton responded by threatening to rename Lake Ontaria "Lake Awesome" and proposing a <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>200% tariff</span> on hockey pucks "just to make a point."
                   </p>
 
-                  {/* Causal chain — blurred */}
+                  {/* Causal chain */}
                   <div style={{
                     borderLeft: "3px solid #e8e4e0", background: "#fafafa",
-                    borderRadius: "0 6px 6px 0", padding: "5px 10px", fontSize: 11,
-                    color: "#2d3436", filter: "blur(3.5px)", userSelect: "none",
+                    borderRadius: "0 6px 6px 0", padding: "6px 10px", fontSize: 11,
+                    color: "#2d3436", marginBottom: 7, lineHeight: 1.7,
                   }}>
-                    <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "#636e72", display: "block", marginBottom: 3 }}>causal chain</span>
-                    <span style={{ background: "#fee2e2", color: "#9a1515", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>cause</span>SELECT * on prod at 9am standup
+                    <span style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "#636e72", display: "block", marginBottom: 4 }}>causal chain</span>
+                    <span style={{ background: "#fee2e2", color: "#9a1515", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>cause</span>talks collapse over flannel import quotas
                     <span style={{ color: "#6c5ce7", fontWeight: 800, margin: "0 3px" }}>→</span>
-                    <span style={{ background: "#fff3cd", color: "#713f12", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>short-term</span>entire company revenue visible on screen
+                    <span style={{ background: "#f1f5f9", color: "#475569", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>mechanism</span>Canadia targets swing-district chainsaws + artisanal cheese
                     <span style={{ color: "#6c5ce7", fontWeight: 800, margin: "0 3px" }}>→</span>
-                    <span style={{ background: "#dcfce7", color: "#14532d", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>outcome</span>promoted for "radical transparency"
+                    <span style={{ background: "#fff3cd", color: "#713f12", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>short-term</span>flannel futures spike 340%, Patagonia halts production
+                    <span style={{ color: "#6c5ce7", fontWeight: 800, margin: "0 3px" }}>→</span>
+                    <span style={{ background: "#dcfce7", color: "#14532d", borderRadius: 3, padding: "0 4px", fontSize: 9, fontWeight: 700, marginRight: 4 }}>outcome</span>both sides still willing to negotiate, probably
                   </div>
 
-                  {/* So what — blurred */}
+                  {/* So what */}
                   <div style={{
                     background: "#f0e6ff", borderLeft: "3px solid #6c5ce7",
-                    borderRadius: "0 6px 6px 0", padding: "5px 10px",
-                    fontSize: 11, marginTop: 6, filter: "blur(3.5px)", userSelect: "none",
+                    borderRadius: "0 6px 6px 0", padding: "7px 10px", fontSize: 11, lineHeight: 1.65,
                   }}>
-                    <span style={{ color: "#6c5ce7", fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.7px", display: "block", marginBottom: 4 }}>so what</span>
-                    The real lesson: confidence is a feature, not a skill. Investors loved that he "moved fast and broke things" and also broke the on-call schedule for three months straight. Series B incoming.
+                    <span style={{ color: "#6c5ce7", fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.7px", display: "block", marginBottom: 5 }}>so what</span>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginBottom: 4 }}>
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#6c5ce7", flexShrink: 0, marginTop: 5 }}/>
+                      <span>Canadia is playing the political map, not the economic one — picking products by senate seat, not trade volume. Midterms in November = leverage window.</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#6c5ce7", flexShrink: 0, marginTop: 5 }}/>
+                      <span>Real briefs are exactly this format — headline, <strong>What</strong>, causal chain, <em>so what</em>. Just with less flannel.</span>
+                    </div>
                   </div>
-
-                  {/* Fade overlay hinting there's more */}
-                  <div style={{
-                    position: "absolute", bottom: 0, left: 0, right: 0,
-                    height: 36,
-                    background: "linear-gradient(to bottom, transparent, rgba(246,243,255,0.95))",
-                    pointerEvents: "none",
-                  }} />
                 </div>
 
                 {/* Email */}
