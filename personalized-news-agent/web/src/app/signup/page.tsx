@@ -178,7 +178,7 @@ export default function SignupPage() {
             borderRadius: 24,
             boxShadow: "0 8px 48px rgba(108,92,231,0.14), 0 2px 8px rgba(0,0,0,0.06)",
             padding: "48px 44px",
-            maxWidth: 440,
+            maxWidth: 580,
             width: "100%",
           }}
         >
@@ -220,7 +220,7 @@ export default function SignupPage() {
                   fontSize: "1.55rem", fontWeight: 900, color: "#2d3436",
                   margin: "0 0 8px", letterSpacing: "-0.3px",
                 }}>
-                  Daily Brief
+                  Engineer Brain&apos;s Daily Brief
                 </h1>
                 <p style={{ color: "#636e72", fontSize: 13.5, lineHeight: 1.65, margin: 0 }}>
                   A newsletter tailored to your engineer brain — causal chains,
@@ -275,11 +275,9 @@ export default function SignupPage() {
 
                   {/* What */}
                   <p style={{ margin: "0 0 7px", fontSize: 12, lineHeight: 1.65 }}>
-                    <strong>What:</strong> After trade talks collapsed, <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>Canadia</span> announced{" "}
-                    <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50% tariffs</span> on <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>$20B</span> of exports,
-                    strategically targeting products from politically sensitive districts — including frozen octopus, artisanal chainsaws, and{" "}
-                    <span style={{ background: "#fce7f3", color: "#831843", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>all flannel</span>.
-                    President Trumpton responded by threatening to rename Lake Ontaria "Lake Awesome" and proposing a <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>200% tariff</span> on hockey pucks "just to make a point."
+                    <strong>What:</strong> <span style={{ background: "#e0f2fe", color: "#0c4a6e", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>Canadia</span> slapped{" "}
+                    <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>50% tariffs</span> on <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>$20B</span> of exports — frozen octopus, artisanal chainsaws, and <span style={{ background: "#fce7f3", color: "#831843", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>all flannel</span>.
+                    President Trumpton retaliated by proposing a <span style={{ background: "#fef9c3", color: "#713f12", borderRadius: 3, padding: "0 3px", fontWeight: 700 }}>200% tariff</span> on hockey pucks "just to make a point."
                   </p>
 
                   {/* Causal chain */}
