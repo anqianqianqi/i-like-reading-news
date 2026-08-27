@@ -4,10 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 
 const BUBBLE_TEXTS = [
-  "More AI news", "Deep dives", "Startup funding", "Options flow",
-  "Crypto updates", "Rate watch", "Earnings recaps", "IPO pipeline",
-  "Chip wars", "Energy sector", "Biotech", "Climate tech",
-  "Consumer sentiment", "Labor market", "Cloud spending", "Defense",
+  "🙋 great idea!", "🛠️ needs work", "💌 love it", "🤯 mind blown",
+  "📝 more depth", "✂️ too long", "🔥 keep it coming", "😅 lost me here",
+  "👀 more of this", "💭 what if...", "🎉 this one clicked", "🤝 you get me",
+  "🧐 explain more", "⭐ favorite part", "🌱 getting better", "🙌 nailed it",
 ];
 
 const TOPIC_SUGGESTIONS = [

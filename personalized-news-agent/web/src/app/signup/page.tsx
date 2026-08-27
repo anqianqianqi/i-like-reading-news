@@ -5,10 +5,10 @@ import Link from "next/link";
 
 // ── Floating bubble data ──────────────────────────────────────────────────
 const BUBBLE_TEXTS = [
-  "AI & Tech", "Markets daily", "Causal chains", "Engineer lens",
-  "Bond yields", "GPU wars", "Startup news", "Macro trends",
-  "Nvidia earnings", "Bitcoin", "Fed watch", "Tariffs",
-  "IPO filings", "Energy stocks", "LLM updates", "Robotics",
+  "☕ morning person", "🔗 causal chains", "🧠 engineer brain", "📊 follow the money",
+  "🤔 but why tho?", "⚡ no fluff", "🎯 the real reason", "🔍 mechanism nerd",
+  "💡 aha moments", "📈 market angle", "🧩 systems thinker", "🚀 what's next",
+  "🗞️ actually useful", "🔮 read the signals", "💬 talk nerdy to me", "🎲 risk/reward",
 ];
 
 interface Bubble {
